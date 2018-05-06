@@ -1,17 +1,28 @@
 package org.decembrist.domain.content.functions
 
-import org.decembrist.domain.headers.annotations.AnnotationInstance
+import org.decembrist.domain.modifiers.FunctionModifiers
 
-class HiderOrderFunc(override val name: String,
-                     override val isAbstract: Boolean,
-                     override val isFinal: Boolean,
-                     override val isOpen: Boolean,
-                     override val isExternal: Boolean,
-                     override val isInfix: Boolean,
-                     override val isInline: Boolean,
-                     override val isOperator: Boolean,
-                     override val isSuspend: Boolean) : IFuncContent {
+class HiderOrderFunc(name: String,
+                     functionModifiers: FunctionModifiers)
+    : AbstractFunction(name, functionModifiers) {
 
-    override val annotations: MutableSet<AnnotationInstance> = mutableSetOf()
+    constructor(name: String,
+                isAbstract: Boolean,
+                isFinal: Boolean,
+                isOpen: Boolean,
+                isExternal: Boolean,
+                isInfix: Boolean,
+                isInline: Boolean,
+                isOperator: Boolean,
+                isSuspend: Boolean)
+            : this(name, FunctionModifiers(
+            isAbstract,
+            isFinal,
+            isOpen,
+            isExternal,
+            isInfix,
+            isInline,
+            isOperator,
+            isSuspend))
 
 }

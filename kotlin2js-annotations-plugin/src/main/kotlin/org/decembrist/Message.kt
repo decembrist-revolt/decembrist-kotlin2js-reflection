@@ -3,7 +3,7 @@ package org.decembrist
 import com.github.sarahbuisson.kotlinparser.KotlinParser.FunctionDeclarationContext
 import org.antlr.v4.runtime.RuleContext
 
-object Message {
+internal object Message {
 
     val lineSeparator = System.getProperty("line.separator")
 
@@ -15,6 +15,16 @@ object Message {
         val wrongAnnotatedType = WrongAnnotatedType(ctx, fileName)
         return "Annotation unsupported yet for $wrongAnnotatedType"
     }
+
+    fun concatenateClassName(className: String, packageName: String? = null): String {
+        return if (packageName != null && packageName.isNotBlank()) {
+            "$packageName.$className"
+        } else className
+    }
+
+    fun quotesOnBlank(value: String) = if (value.isBlank()) "\"\"" else value
+
+    fun nainClassNotFoundMessage(mainClass: String) = "$mainClass not found in classpath"
 
     private class WrongAnnotatedType(val ctx: RuleContext, val fileName: String) {
 

@@ -1,5 +1,17 @@
 package org.decembrist.domain.content.annotations
 
-import com.squareup.kotlinpoet.TypeName
+import org.decembrist.Message.quotesOnBlank
+import org.decembrist.services.TypeSuggestion
 
-class AnnotationParameter(val name: String, val type: TypeName, val defaultValue: Any?)
+class AnnotationParameter(val name: String,
+                          val type: TypeSuggestion,
+                          val defaultValue: Any?) {
+
+    override fun toString(): String {
+        val dftValStr = if (defaultValue != null) {
+            " = ${quotesOnBlank(defaultValue.toString())}"
+        } else ""
+        return "$name: $type$dftValStr"
+    }
+
+}

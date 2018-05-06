@@ -1,17 +1,20 @@
 package org.decembrist.domain.content.functions
 
 import org.decembrist.domain.content.classes.IEntityContent
+import org.decembrist.domain.modifiers.FunctionModifiers
 
 interface IFuncContent: IEntityContent {
 
-    val isExternal: Boolean
+    val functionModifiers: FunctionModifiers
 
-    val isInfix: Boolean
+    fun isExternal(): Boolean
 
-    val isInline: Boolean
+    fun isInfix(): Boolean
 
-    val isOperator: Boolean
+    fun isInline(): Boolean
 
-    val isSuspend: Boolean
+    fun isOperator(): Boolean
+
+    fun isSuspend(): Boolean
 
 }

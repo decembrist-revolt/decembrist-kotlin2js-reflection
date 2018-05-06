@@ -1,17 +1,20 @@
 package org.decembrist.services
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.TypeName
+import org.decembrist.services.TypeSuggestion.Type
+import org.decembrist.services.TypeSuggestion.Unknown
 
 object TypeService {
 
-    fun getTypeName(className: String): TypeName {
+    /**
+     * @return connected [Type] or [Unknown] on [className] without package
+     */
+    fun getTypeSuggestion(className: String): TypeSuggestion {
         val packageName = className.substringBeforeLast(".")
         val clazz = className.substringAfterLast(".")
         return if (packageName == className) {
-            ClassName("", clazz)
+            Unknown(clazz)
         } else {
-            ClassName(packageName, clazz)
+            Type(clazz, packageName)
         }
     }
 

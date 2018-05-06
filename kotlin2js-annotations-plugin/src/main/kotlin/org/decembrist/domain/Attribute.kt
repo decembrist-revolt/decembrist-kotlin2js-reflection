@@ -1,7 +1,7 @@
 package org.decembrist.domain
 
-import com.squareup.kotlinpoet.TypeName
+import org.decembrist.services.TypeSuggestion
 
 data class Attribute(val name: String,
                      val value: String,
-                     val type: TypeName?)
+                     val type: TypeSuggestion)

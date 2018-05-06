@@ -7,10 +7,10 @@ interface IEntityContent: IAnnotated, IContent {
 
     val name: String
 
-    val isAbstract: Boolean
+    fun isAbstract(): Boolean
 
-    val isFinal: Boolean
+    fun isFinal(): Boolean
 
-    val isOpen: Boolean
+    fun isOpen(): Boolean
 
 }
