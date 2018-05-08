@@ -1,5 +1,6 @@
 package org.decembrist.fillers
 
+import com.squareup.kotlinpoet.ClassName
 import org.decembrist.Message.concatenateClassName
 import org.decembrist.Message.lineSeparator
 import org.decembrist.domain.Attribute
@@ -8,6 +9,7 @@ import org.decembrist.domain.content.KtFileContent
 import org.decembrist.domain.content.annotations.AnnotationClass
 import org.decembrist.domain.content.annotations.AnnotationParameter
 import org.decembrist.domain.content.classes.Class
+import org.decembrist.domain.headers.annotations.AnnotationInstance
 import org.decembrist.services.AnnotationService
 import org.decembrist.services.AnnotationService.hasUnknownAttributesInfo
 import org.decembrist.services.AnnotationService.isAttributeWithUnknownName
@@ -66,9 +68,10 @@ class AnnotationInfoFiller(fileContents: Collection<KtFileContent>) {
                                    packageName: String) {
         val filledAnnotationsList = entity.annotations.map { annotation ->
             return@map try {
+                var annotationItem: AnnotationItem? = null
                 val filledAttributes = if (hasUnknownAttributesInfo(annotation)) {
                     val annotationType = annotation.type
-                    var annotationItem = getAnnotationItemByType(annotationType, packageName)
+                    annotationItem = getAnnotationItemByType(annotationType, packageName)
                     annotationItem = if (annotationItem == null && annotationType is Unknown) {
                         findInEmbeddings(annotationType)
                     } else annotationItem
@@ -80,7 +83,10 @@ class AnnotationInfoFiller(fileContents: Collection<KtFileContent>) {
                         return@mapIndexed fillAttribute(attribute, parameter)
                     }
                 } else annotation.attributes
-                annotation.apply {
+                val newAnnotation = if (annotationItem == null) {
+                    annotation
+                } else AnnotationInstance(annotationItem.getTypeSuggestion())
+                newAnnotation.apply {
                     attributes.clear()
                     attributes.addAll(filledAttributes)
                 }
@@ -131,6 +137,11 @@ class AnnotationInfoFiller(fileContents: Collection<KtFileContent>) {
     private class AnnotationItem(val annotationName: String,
                                  val packageName: String,
                                  val parameters: List<AnnotationParameter>) {
+
+        fun getTypeSuggestion() = TypeSuggestion.Type(
+                annotationName,
+                packageName
+        )
 
         override fun toString(): String {
             return "@${concatenateClassName(annotationName, packageName)}" +

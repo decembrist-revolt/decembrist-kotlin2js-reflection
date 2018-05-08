@@ -2,7 +2,7 @@ package org.decembrist.reflection
 
 class Reflection private constructor(val annotations: dynamic) {
 
-    fun getAnnotations(item: Any): List<out Annotation> {
+    fun getAnnotations(item: Any): List<Annotation> {
         return annotations[item.toString()] ?: emptyList()
     }
 

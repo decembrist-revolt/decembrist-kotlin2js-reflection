@@ -2,10 +2,13 @@ package org.decembrist
 
 import com.github.sarahbuisson.kotlinparser.KotlinParser.FunctionDeclarationContext
 import org.antlr.v4.runtime.RuleContext
+import java.io.File
 
 internal object Message {
 
     val lineSeparator = System.getProperty("line.separator")
+
+    val pathSeparator = File.separatorChar
 
     fun folderExistenceFailedMessage(folderPath: String) = "$folderPath must exist and be folder"
 

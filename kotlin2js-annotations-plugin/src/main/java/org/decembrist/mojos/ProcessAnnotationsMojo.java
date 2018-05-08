@@ -1,5 +1,6 @@
 package org.decembrist.mojos;
 
+import com.squareup.kotlinpoet.FileSpec;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -12,6 +13,7 @@ import org.decembrist.generators.ReflectionUtilsGenerator;
 import org.decembrist.parsers.SourceParser;
 import org.decembrist.services.logging.Logger;
 import org.decembrist.services.logging.LoggerService;
+import org.decembrist.writers.WriteFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -36,6 +38,12 @@ public class ProcessAnnotationsMojo extends AbstractMojo {
 	private String mainClass;
 
 	/**
+	 * Generated sources output dir
+	 */
+	@Parameter(defaultValue = "${project.build.directory}/generated-sources/decembrist", readonly = true)
+	private File generatedSourcesDir;
+
+	/**
 	 * Sources folders for processing
 	 * <p>
 	 * default: ${project.build.sourceDirectory}
@@ -49,7 +57,9 @@ public class ProcessAnnotationsMojo extends AbstractMojo {
 		final SourceParser sourceParser = new SourceParser(getSourceDirs());
 		final List<KtFileContent> contentList = sourceParser.parse();
 		final ReflectionUtilsGenerator generator = new ReflectionUtilsGenerator(mainClass);
-		generator.generateCode(contentList);
+		final List<FileSpec> fileSpecs = generator.generateCode(contentList);
+		final WriteFile writeFile = new WriteFile(generatedSourcesDir);
+		fileSpecs.forEach(writeFile::write);
 	}
 
 	private List<File> getSourceDirs() {

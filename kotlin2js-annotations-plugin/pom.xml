@@ -33,14 +33,11 @@
         <maven.plugin.api>3.3.9</maven.plugin.api>
         <maven.plugin.plugin>3.5.1</maven.plugin.plugin>
         <maven.plugin.annotations.version>3.5.1</maven.plugin.annotations.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-plugin-api</artifactId>
-            <version>${maven.plugin.api}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
@@ -66,6 +63,11 @@
             <artifactId>kotlin-parser</artifactId>
             <version>1.5</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>3.2.5</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -89,6 +91,42 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-compiler-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<source>1.8</source>-->
+                    <!--<target>1.8</target>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
+                    <goalPrefix>kotlin2js-reflection</goalPrefix>
+                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>mojo-descriptor</id>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>
