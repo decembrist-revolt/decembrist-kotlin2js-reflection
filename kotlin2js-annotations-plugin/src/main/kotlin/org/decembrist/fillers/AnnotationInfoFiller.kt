@@ -18,7 +18,7 @@ import org.decembrist.services.TypeSuggestion
 import org.decembrist.services.TypeSuggestion.Unknown
 import org.decembrist.services.logging.LoggerService
 
-class AnnotationInfoFiller(fileContents: Collection<KtFileContent>) {
+class AnnotationInfoFiller(val fileContents: Collection<KtFileContent>) {
 
     private val annotationItemList: List<AnnotationItem>
     private val embeddedJsItemList: List<AnnotationItem>
@@ -46,19 +46,22 @@ class AnnotationInfoFiller(fileContents: Collection<KtFileContent>) {
     /**
      * Fill missing annotation instance info from [fileContent]
      */
-    fun fill(fileContent: KtFileContent) {
-        val methods: List<IAnnotated> = fileContent.classes
-                .filter { it is Class }
-                .map { (it as Class).methods }
-                .flatten()
-        val annotatedEntities: List<IAnnotated> = fileContent.classes
-                .plus(fileContent.functions)
-                .plus(methods)
-                .filter { it.annotations.isNotEmpty() }
-        val packageName = fileContent.`package`?.name ?: ""
-        for (entity in annotatedEntities) {
-            fillItemAnnotation(entity, packageName)
+    fun fill(): Collection<KtFileContent> {
+        for (fileContent in fileContents) {
+            val methods: List<IAnnotated> = fileContent.classes
+                    .filter { it is Class }
+                    .map { (it as Class).methods }
+                    .flatten()
+            val annotatedEntities: List<IAnnotated> = fileContent.classes
+                    .plus(fileContent.functions)
+                    .plus(methods)
+                    .filter { it.annotations.isNotEmpty() }
+            val packageName = fileContent.`package`?.name ?: ""
+            for (entity in annotatedEntities) {
+                fillItemAnnotation(entity, packageName)
+            }
         }
+        return fileContents
     }
 
     /**

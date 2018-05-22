@@ -1,50 +1,49 @@
 package org.decembrist.utils
 
-import org.decembrist.reflection.JsReflect
+import org.decembrist.model.FunctionIdentifier
 import org.decembrist.reflection.Reflection
+import org.decembrist.services.ReflectionService
+import org.decembrist.services.ReflectionService.isCacheEnabled
 import kotlin.reflect.KClass
-
-const val REFLECTION_INFO = "reflection-info"
-
-private var _enableCache = true
-
-private val classChache = mutableMapOf<String, JsReflect<*>>()
+import kotlin.reflect.KFunction
 
 val <T : Any> KClass<T>.jsReflect
-    get() = jsReflectOf(this)
+    get() = ReflectionService.jsReflectOf(this)
 
-@Suppress("UNCHECKED_CAST")
-private fun <T : Any> jsReflectOf(kClass: KClass<T>): JsReflect<T> {
-    val jsName = kClass.asDynamic()[REFLECTION_INFO].jsName.unsafeCast<String>()
-    val cachedValue = if (_enableCache) {
-        classChache[jsName]?.let { it as JsReflect<T> }
-    } else null
-    return cachedValue ?: object : JsReflect<T> {
-        override val jsName: String
-            get() = jsName
-        override val jsConstructor: dynamic
-            get() = kClass.asDynamic()[REFLECTION_INFO].jsConstructor
-
-        override fun createInstance(arguments: Array<Any>): T {
-            return kClass.asDynamic()[REFLECTION_INFO]
-                    .createInstance(arguments)
-                    .unsafeCast<T>()
-        }
-    }.apply {
-        classChache[jsName] = this
-    }
-}
-
-/**
- * Clear jsReflect cache
- */
-fun Reflection.clearCache() = classChache.clear()
+val KFunction<*>.jsReflect
+    get() = ReflectionService.jsReflectOf(this)
 
 /**
  * Enable/Disable jsReflect cache
  */
 var Reflection.enableCache
-    get() = _enableCache
-    set(enable: Boolean) {
-        _enableCache = enable
+    get() = isCacheEnabled
+    set(enable) {
+        isCacheEnabled = enable
     }
+
+/**
+ * Clear jsReflect cache
+ */
+fun Reflection.clearClassCache() = ReflectionService.clearClassCache()
+
+fun getIdentifier(kFunction: KFunction<*>) = FunctionIdentifier(
+        kFunction.name,
+        kFunction.toString()
+)
+
+fun getIdentifierBySupplier(functionSupplier: () -> KFunction<*>): FunctionIdentifier {
+    val kFunction = functionSupplier()
+    return FunctionIdentifier(
+            kFunction.name,
+            kFunction.toString()
+    )
+}
+
+fun FunctionIdentifier.isMethod() = body.matches("^function.*\\(\\\$receiver")
+
+internal external object Object {
+    fun create(prototype: dynamic): dynamic
+}
+
+internal fun Object.create() = Object.create(null)

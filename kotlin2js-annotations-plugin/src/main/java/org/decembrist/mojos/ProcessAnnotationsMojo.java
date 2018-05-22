@@ -17,6 +17,7 @@ import org.decembrist.writers.WriteFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
@@ -55,7 +56,7 @@ public class ProcessAnnotationsMojo extends AbstractMojo {
 		LoggerService.INSTANCE.setLogger(new EnvLogger(getLog()));
 
 		final SourceParser sourceParser = new SourceParser(getSourceDirs());
-		final List<KtFileContent> contentList = sourceParser.parse();
+		final Collection<KtFileContent> contentList = sourceParser.parse();
 		final ReflectionUtilsGenerator generator = new ReflectionUtilsGenerator(mainClass);
 		final List<FileSpec> fileSpecs = generator.generateCode(contentList);
 		final WriteFile writeFile = new WriteFile(generatedSourcesDir);

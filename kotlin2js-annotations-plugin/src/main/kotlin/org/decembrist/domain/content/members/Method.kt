@@ -1,11 +1,13 @@
 package org.decembrist.domain.content.members
 
 import org.decembrist.domain.content.functions.AbstractFunction
+import org.decembrist.domain.content.functions.FunctionParameter
 import org.decembrist.domain.modifiers.FunctionModifiers
 
 class Method(name: String,
-             functionModifiers: FunctionModifiers)
-    : AbstractFunction(name, functionModifiers), IMember {
+             functionModifiers: FunctionModifiers,
+             functionParameters: List<FunctionParameter>)
+    : AbstractFunction(name, functionModifiers, functionParameters), IMember {
 
     constructor(
             name: String,
@@ -16,7 +18,8 @@ class Method(name: String,
             isInfix: Boolean,
             isInline: Boolean,
             isOperator: Boolean,
-            isSuspend: Boolean)
+            isSuspend: Boolean,
+            functionParameters: List<FunctionParameter>)
             : this(name, FunctionModifiers(
             isAbstract,
             isFinal,
@@ -25,6 +28,6 @@ class Method(name: String,
             isInfix,
             isInline,
             isOperator,
-            isSuspend))
+            isSuspend), functionParameters)
 
 }

@@ -3,8 +3,9 @@ package org.decembrist.domain.content.functions
 import org.decembrist.domain.modifiers.FunctionModifiers
 
 class HiderOrderFunc(name: String,
-                     functionModifiers: FunctionModifiers)
-    : AbstractFunction(name, functionModifiers) {
+                     functionModifiers: FunctionModifiers,
+                     functionParameters: List<FunctionParameter>)
+    : AbstractFunction(name, functionModifiers, functionParameters) {
 
     constructor(name: String,
                 isAbstract: Boolean,
@@ -14,7 +15,8 @@ class HiderOrderFunc(name: String,
                 isInfix: Boolean,
                 isInline: Boolean,
                 isOperator: Boolean,
-                isSuspend: Boolean)
+                isSuspend: Boolean,
+                functionParameters: List<FunctionParameter>)
             : this(name, FunctionModifiers(
             isAbstract,
             isFinal,
@@ -23,6 +25,6 @@ class HiderOrderFunc(name: String,
             isInfix,
             isInline,
             isOperator,
-            isSuspend))
+            isSuspend), functionParameters)
 
 }

@@ -5,6 +5,8 @@ import org.decembrist.domain.modifiers.FunctionModifiers
 
 interface IFuncContent: IEntityContent {
 
+    val functionParameters: List<FunctionParameter>
+
     val functionModifiers: FunctionModifiers
 
     fun isExternal(): Boolean

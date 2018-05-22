@@ -4,7 +4,8 @@ import org.decembrist.domain.headers.annotations.AnnotationInstance
 import org.decembrist.domain.modifiers.FunctionModifiers
 
 abstract class AbstractFunction(override val name: String,
-                                override val functionModifiers: FunctionModifiers) : IFuncContent {
+                                override val functionModifiers: FunctionModifiers,
+                                override val functionParameters: List<FunctionParameter>) : IFuncContent {
 
     constructor(name: String,
                 isAbstract: Boolean,
@@ -14,7 +15,8 @@ abstract class AbstractFunction(override val name: String,
                 isInfix: Boolean,
                 isInline: Boolean,
                 isOperator: Boolean,
-                isSuspend: Boolean)
+                isSuspend: Boolean,
+                functionParameters: List<FunctionParameter>)
             : this(name, FunctionModifiers(
             isAbstract,
             isFinal,
@@ -23,7 +25,7 @@ abstract class AbstractFunction(override val name: String,
             isInfix,
             isInline,
             isOperator,
-            isSuspend))
+            isSuspend), functionParameters)
 
     override val annotations: MutableSet<AnnotationInstance> = mutableSetOf()
 

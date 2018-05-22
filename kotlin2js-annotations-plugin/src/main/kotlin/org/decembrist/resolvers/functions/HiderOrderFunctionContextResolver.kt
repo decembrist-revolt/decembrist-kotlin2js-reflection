@@ -1,15 +1,19 @@
 package org.decembrist.resolvers.functions
 
 import com.github.sarahbuisson.kotlinparser.KotlinParser.FunctionDeclarationContext
+import org.decembrist.domain.Import
 import org.decembrist.domain.content.functions.HiderOrderFunc
 import org.decembrist.services.RuleContextService.getFunctionModifiers
+import org.decembrist.services.RuleContextService.retrieveFunctionParameters
 
 class HiderOrderFunctionContextResolver(
-        funcName: String) : AbstractFunctionContextResolver<HiderOrderFunc>(funcName) {
+        funcName: String,
+        val imports: Collection<Import>) : AbstractFunctionContextResolver<HiderOrderFunc>(funcName) {
 
     override fun resolve(ctx: FunctionDeclarationContext): HiderOrderFunc {
         val functionModifiers = getFunctionModifiers(ctx)
-        return HiderOrderFunc(funcName, functionModifiers)
+        val functionParameters = retrieveFunctionParameters(ctx, imports)
+        return HiderOrderFunc(funcName, functionModifiers, functionParameters)
     }
 
 }

@@ -2,6 +2,7 @@ package org.decembrist.parsers
 
 import com.github.sarahbuisson.kotlinparser.KotlinParser.*
 import com.github.sarahbuisson.kotlinparser.KotlinParserBaseListener
+import org.antlr.v4.runtime.RuleContext
 import org.decembrist.domain.content.KtFileContent
 import org.decembrist.domain.content.classes.Class
 import org.decembrist.resolvers.ImportContextResolver
@@ -20,6 +21,10 @@ class KtFileListener(private val fileName: String) : KotlinParserBaseListener() 
     private val imports
         get() = fileContent.imports!!.imports
 
+    private val functionContextResolverFactory by lazy {
+        FunctionContextResolverFactory(imports)
+    }
+
     override fun enterPackageHeader(ctx: PackageHeaderContext) {
         fileContent.`package` = PackageContextResolver().resolve(ctx)
     }
@@ -34,16 +39,19 @@ class KtFileListener(private val fileName: String) : KotlinParserBaseListener() 
      * @throws [UnsupportedOperationException] on unsupported annotated type
      */
     override fun enterFunctionDeclaration(ctx: FunctionDeclarationContext) {
-        val annotations = getAnnotations(ctx, fileContent.imports!!.imports)
-        try {
-            val functionListener = FunctionContextResolverFactory.getResolver(ctx)
-            val function = functionListener.resolve(ctx).apply {
-                this.annotations += annotations
-            }
-            fileContent.functions += function
-        } catch (ex: UnsupportedOperationException) {
-            if (annotations.isNotEmpty()) {
-                throwUnsupportedAnnotatedTypeException(ctx, fileName)
+        if (!isClassMember(ctx)) {
+            val annotations = getAnnotations(ctx, fileContent.imports!!.imports)
+            try {
+                val functionListener = functionContextResolverFactory
+                        .getResolver(ctx)
+                val function = functionListener.resolve(ctx).apply {
+                    this.annotations += annotations
+                }
+                fileContent.functions += function
+            } catch (ex: UnsupportedOperationException) {
+                if (annotations.isNotEmpty()) {
+                    throwUnsupportedAnnotatedTypeException(ctx, fileName)
+                }
             }
         }
     }
@@ -85,6 +93,10 @@ class KtFileListener(private val fileName: String) : KotlinParserBaseListener() 
                 .asReversed()
                 .filter { it is Class }
                 .first { it.name == className } as Class
+    }
+
+    private fun isClassMember(ctx: RuleContext): Boolean {
+        return ctx.parent is ClassMemberDeclarationContext
     }
 
 }

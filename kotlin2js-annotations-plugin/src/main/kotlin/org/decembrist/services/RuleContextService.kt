@@ -2,6 +2,8 @@ package org.decembrist.services
 
 import com.github.sarahbuisson.kotlinparser.KotlinParser.*
 import org.decembrist.domain.Import
+import org.decembrist.domain.content.annotations.AnnotationParameter
+import org.decembrist.domain.content.functions.FunctionParameter
 import org.decembrist.domain.modifiers.ClassModifiers
 import org.decembrist.domain.modifiers.FunctionModifiers
 import org.decembrist.resolvers.AnnotationInstanceContextResolver
@@ -64,12 +66,37 @@ object RuleContextService {
         )
     }
 
+    fun retrieveFunctionParameters(ctx: FunctionDeclarationContext,
+                                   imports: Collection<Import>): List<FunctionParameter> {
+        val functionValueParameters = ctx.functionValueParameters()
+                ?.functionValueParameter()
+                .orEmpty()
+        return if (functionValueParameters.isNotEmpty()) {
+            functionValueParameters.map {parameter ->
+                val parameterCtx = parameter.parameter()
+                return@map retrieveParameter(parameterCtx, imports)
+            }
+        } else emptyList()
+    }
+
     fun getClassName(ctx: ClassDeclarationContext) = ctx.simpleIdentifier().text
 
     fun getMemberOwnerClassName(ctx: ClassMemberDeclarationContext) = ctx.parent
             .parent
             .let { it as ClassDeclarationContext }
             .let { getClassName(it) }
+
+    /**
+     * TODO default value
+     */
+    private fun retrieveParameter(ctx: ParameterContext,
+                                  imports: Collection<Import>): FunctionParameter {
+        val name = ctx.simpleIdentifier().text
+        val className = ctx.type().text
+        val fullClass = ImportService.findFullClass(imports, className)
+        val type = TypeService.getTypeSuggestion(ctx.type(), imports)
+        return FunctionParameter(name, type, null)
+    }
 
     /**
      * @return triple (isAbstract, isFinal, isOpen) modifiers

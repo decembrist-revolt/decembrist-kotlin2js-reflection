@@ -39,6 +39,11 @@
                         <goals>
                             <goal>js</goal>
                         </goals>
+                        <configuration>
+                            <sourceMapEmbedSources>always</sourceMapEmbedSources>
+                            <sourceMap>true
+                            </sourceMap> <!-- source map is useful for debugging in tools that support source maps -->
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -1,6 +1,6 @@
 package org.decembrist.reflection
 
-interface JsReflect<T> {
+interface JsClassReflect<T>: IAnnotated {
 
     /**
      * @return class name from compiled js file

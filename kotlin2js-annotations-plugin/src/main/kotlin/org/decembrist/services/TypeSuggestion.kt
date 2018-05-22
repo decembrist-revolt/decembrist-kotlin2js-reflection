@@ -2,11 +2,14 @@ package org.decembrist.services
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.WildcardTypeName
 import org.decembrist.Message.concatenateClassName
 
-sealed class TypeSuggestion(val type: String) {
+sealed class TypeSuggestion(val type: String,
+                            val projections: MutableList<TypeSuggestion>) {
 
-    class Unknown(type: String) : TypeSuggestion(type) {
+    class Unknown(type: String,
+                  projections: MutableList<TypeSuggestion> = mutableListOf()) : TypeSuggestion(type, projections) {
 
         override fun toTypeName(): TypeName {
             throw UnsupportedOperationException("This is unknown type, that cant be converted")
@@ -14,11 +17,17 @@ sealed class TypeSuggestion(val type: String) {
 
     }
 
-    class Type(type: String, val packageName: String = "") : TypeSuggestion(type) {
+    open class Type(type: String,
+                    val packageName: String = "",
+                    projections: MutableList<TypeSuggestion> = mutableListOf()) : TypeSuggestion(type, projections) {
 
-        override fun toTypeName(): TypeName {
-            return ClassName(packageName, type)
-        }
+        override fun toTypeName(): TypeName = ClassName(packageName, type)
+
+    }
+
+    class StarType: Type("*") {
+
+        override fun toTypeName(): TypeName = WildcardTypeName.subtypeOf(Any::class)
 
     }
 
