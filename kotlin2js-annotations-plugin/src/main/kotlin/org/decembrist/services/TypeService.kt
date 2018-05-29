@@ -1,29 +1,31 @@
 package org.decembrist.services
 
 import com.github.sarahbuisson.kotlinparser.KotlinParser.*
-import org.antlr.v4.runtime.ParserRuleContext
 import org.decembrist.domain.Import
-import org.decembrist.services.TypeSuggestion.Type
-import org.decembrist.services.TypeSuggestion.Unknown
+import org.decembrist.services.TypeSuggestion.*
+import org.decembrist.services.typecontexts.ModifiedProjection
+import org.decembrist.services.typecontexts.StarType
 
 object TypeService {
 
     /**
      * @return connected [Type] or [Unknown] on [className] without package
      */
-    fun getTypeSuggestion(className: String): TypeSuggestion {
+    fun getTypeSuggestion(className: String, nullable: Boolean = false): TypeSuggestion {
         val packageName = className.substringBeforeLast(".")
         val clazz = className.substringAfterLast(".")
         return if (packageName == className) {
-            Unknown(clazz)
+            Unknown(clazz, nullable = nullable)
         } else {
-            Type(clazz, packageName)
+            Type(clazz, packageName, nullable = nullable)
         }
     }
 
     fun getTypeSuggestion(paramCxt: TypeContext, imports: Collection<Import>): TypeSuggestion {
-        val typeContext = paramCxt
-                .typeReference()
+        val typeReferenceContext =
+            paramCxt.typeReference() ?: paramCxt.nullableType()?.typeReference()
+        //TODO nullable types
+        val typeContext = typeReferenceContext
                 ?.userType()
                 ?.simpleUserType()
                 .orEmpty()
@@ -33,7 +35,7 @@ object TypeService {
                     ?.typeProjection()
                     .orEmpty()
             val typeName = typeContext.simpleIdentifier().text
-            val result = typeSuggestionFromImports(typeName, imports)
+            val result = typeSuggestionFromImports(typeName, imports, paramCxt)
             if (projections.isNotEmpty()) {
                 val typeProjections = projections
                         .map { retrieveType(it, typeContext) }
@@ -43,34 +45,42 @@ object TypeService {
             result
         } else {
             val typeName = paramCxt.text
-            typeSuggestionFromImports(typeName, imports)
+            typeSuggestionFromImports(typeName, imports, paramCxt)
         }
     }
 
     private fun typeSuggestionFromImports(typeName: String,
-                                          imports: Collection<Import>): TypeSuggestion {
+                                          imports: Collection<Import>,
+                                          paramCxt: TypeContext): TypeSuggestion {
         return when (typeName) {
             "*" -> TypeSuggestion.StarType()
             else -> {
+                val nullable = paramCxt
+                        .nullableType()
+                        ?.QUEST()
+                        ?.isNotEmpty() == true
                 val fullClassName = ImportService.findFullClass(imports, typeName)
-                getTypeSuggestion(fullClassName)
+                when (paramCxt) {
+                    is ModifiedProjection -> Projection(
+                            fullClassName,
+                            nullable = nullable,
+                            `in` = paramCxt.isIN,
+                            out = paramCxt.isOUT
+                    )
+                    else -> getTypeSuggestion(fullClassName, nullable)
+                }
             }
         }
     }
 
     private fun retrieveType(projection: TypeProjectionContext,
                              typeContext: SimpleUserTypeContext) = when {
-        projection.MULT() != null -> StarType(typeContext, 0)
+        projection.MULT() != null -> StarType(typeContext)
+        projection.typeProjectionModifierList()?.isEmpty?.not() == true -> ModifiedProjection(
+                projection,
+                typeContext
+        )
         else -> projection.type()
-    }
-
-    class StarType(typeContext: ParserRuleContext,
-                   state: Int) : TypeContext(typeContext, state) {
-
-        override fun typeReference(): TypeReferenceContext? = null
-
-        override fun getText() = "*"
-
     }
 
 }
