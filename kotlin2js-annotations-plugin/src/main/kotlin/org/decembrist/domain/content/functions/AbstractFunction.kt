@@ -2,10 +2,12 @@ package org.decembrist.domain.content.functions
 
 import org.decembrist.domain.headers.annotations.AnnotationInstance
 import org.decembrist.domain.modifiers.FunctionModifiers
+import org.decembrist.services.TypeSuggestion
 
 abstract class AbstractFunction(override val name: String,
                                 override val functionModifiers: FunctionModifiers,
-                                override val functionParameters: List<FunctionParameter>) : IFuncContent {
+                                override val functionParameters: List<FunctionParameter>,
+                                override val returnType: TypeSuggestion) : IFuncContent {
 
     constructor(name: String,
                 isAbstract: Boolean,
@@ -16,7 +18,8 @@ abstract class AbstractFunction(override val name: String,
                 isInline: Boolean,
                 isOperator: Boolean,
                 isSuspend: Boolean,
-                functionParameters: List<FunctionParameter>)
+                functionParameters: List<FunctionParameter>,
+                returnType: TypeSuggestion)
             : this(name, FunctionModifiers(
             isAbstract,
             isFinal,
@@ -25,7 +28,10 @@ abstract class AbstractFunction(override val name: String,
             isInfix,
             isInline,
             isOperator,
-            isSuspend), functionParameters)
+            isSuspend),
+            functionParameters,
+            returnType
+    )
 
     override val annotations: MutableSet<AnnotationInstance> = mutableSetOf()
 

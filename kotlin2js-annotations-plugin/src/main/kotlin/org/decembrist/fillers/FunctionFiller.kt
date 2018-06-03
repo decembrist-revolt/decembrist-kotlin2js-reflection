@@ -5,10 +5,12 @@ import org.decembrist.domain.content.KtFileContent
 import org.decembrist.domain.content.functions.FunctionParameter
 import org.decembrist.domain.content.functions.IFuncContent
 import org.decembrist.domain.content.members.IMembered
+import org.decembrist.services.TypeSuggestion
 import java.util.Collections.singletonList
 
 class FunctionFiller(val fileContents: Collection<KtFileContent>) {
 
+    //TODO retrieve all classes by package pair
     private val functionItemList: List<FunctionItem>
 
     init {
@@ -32,9 +34,21 @@ class FunctionFiller(val fileContents: Collection<KtFileContent>) {
      */
     fun fill(): Collection<KtFileContent> {
         for (fileContent in fileContents) {
-
+            val methods = fileContent.classes
+                    .filter { it is IMembered }
+                    .map { (it as IMembered).methods }
+                    .flatten()
+            val unknownTypeFunctions = methods.filter { hasUnknownParameterTypes(it) }
         }
         return fileContents
+    }
+
+    private fun hasUnknownParameterTypes(function: IFuncContent): Boolean {
+        val parameterTypes = function.functionParameters
+                .map { it.type }
+        return parameterTypes
+                .plus(function.returnType)
+                .any { it is TypeSuggestion.Unknown }
     }
 
     private fun Pair<String, IContent>.toFunctionItems(): List<FunctionItem> {

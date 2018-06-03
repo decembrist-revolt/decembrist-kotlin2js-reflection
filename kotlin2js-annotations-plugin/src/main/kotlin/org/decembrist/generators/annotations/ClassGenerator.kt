@@ -18,7 +18,7 @@ class ClassGenerator(val packageName: String) : IGenerator<AbstractClass> {
         val classType = ClassName(packageName, className)
         CodeBlock.builder()
                 .add("ClassInfo(")
-                .indent()
+                .nextLine()
                 .add("%T::class,", classType)
         val methodsBlock: CodeBlock = when (content) {
             is Class -> generateMethodsBlock(content.methods)
@@ -70,6 +70,7 @@ class ClassGenerator(val packageName: String) : IGenerator<AbstractClass> {
     private fun generateMethodsBlock(methods: Set<Method>): CodeBlock {
         return if (methods.isNotEmpty()) {
             val generatedBlock = CodeBlock.builder()
+                    .add("listOf(")
             val blocks = methods
                     .map { MethodInfoGenerator.generate(it) }
             for (block in blocks) {

@@ -19,6 +19,9 @@ object MethodInfoGenerator: IGenerator<Method> {
                 .add("MethodInfo(")
                 .nextLine()
                 .indent()
+                .add("getIdentifierBySupplier({")
+                .indent()
+                .add("val function: ")
                 .add("getIdentifierBySupplier(::$className),")
                 .nextLine()
         if (content.annotations.isEmpty()) {

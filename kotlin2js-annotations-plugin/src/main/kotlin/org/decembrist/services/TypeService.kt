@@ -21,9 +21,9 @@ object TypeService {
         }
     }
 
-    fun getTypeSuggestion(paramCxt: TypeContext, imports: Collection<Import>): TypeSuggestion {
+    fun getTypeSuggestion(ctx: TypeContext, imports: Collection<Import>): TypeSuggestion {
         val typeReferenceContext =
-            paramCxt.typeReference() ?: paramCxt.nullableType()?.typeReference()
+            ctx.typeReference() ?: ctx.nullableType()?.typeReference()
         //TODO nullable types
         val typeContext = typeReferenceContext
                 ?.userType()
@@ -35,7 +35,7 @@ object TypeService {
                     ?.typeProjection()
                     .orEmpty()
             val typeName = typeContext.simpleIdentifier().text
-            val result = typeSuggestionFromImports(typeName, imports, paramCxt)
+            val result = typeSuggestionFromImports(typeName, imports, ctx)
             if (projections.isNotEmpty()) {
                 val typeProjections = projections
                         .map { retrieveType(it, typeContext) }
@@ -44,8 +44,8 @@ object TypeService {
             }
             result
         } else {
-            val typeName = paramCxt.text
-            typeSuggestionFromImports(typeName, imports, paramCxt)
+            val typeName = ctx.text
+            typeSuggestionFromImports(typeName, imports, ctx)
         }
     }
 

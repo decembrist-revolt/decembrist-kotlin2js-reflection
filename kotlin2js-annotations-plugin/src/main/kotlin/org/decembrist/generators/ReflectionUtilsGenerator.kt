@@ -2,9 +2,9 @@ package org.decembrist.generators
 
 import com.squareup.kotlinpoet.*
 import org.decembrist.Message.nainClassNotFoundMessage
-import org.decembrist.domain.Attribute
 import org.decembrist.domain.content.KtFileContent
 import org.decembrist.domain.content.functions.HiderOrderFunc
+import org.decembrist.generators.annotations.ClassGenerator
 import org.decembrist.generators.annotations.HiderOrderFunctionAnnotationsGenerator
 import java.util.*
 
@@ -45,23 +45,38 @@ class ReflectionUtilsGenerator(private val mainClass: String) {
             .initializer(generateReflectionValInitializer(ktFileContents))
             .build()
 
-    private fun generateReflectionValInitializer(ktFileContents: KtFileContent): CodeBlock {
+    private fun generateReflectionValInitializer(ktFileContent: KtFileContent): CodeBlock {
         val initializer = CodeBlock.builder()
                 .add("{")
                 .nextLine()
-                .add("val functionAnnotations = HashMap<String, List<Annotation>>()")
-                .nextLine()
-        val funcAnnotationsBlocks = ktFileContents.functions
-                .filter { it is HiderOrderFunc }
-                .map { HiderOrderFunctionAnnotationsGenerator.generate(it as HiderOrderFunc) }
-        for (funcAnnotationsBlock in funcAnnotationsBlocks) {
-            initializer.add(funcAnnotationsBlock)
-        }
+        processHiderOrderedFunctionsInfo(ktFileContent, initializer)
+        initializer.nextLine()
         initializer
                 .add("%T.setData(functionAnnotations)", REFLECTION_TYPE)
                 .nextLine()
                 .add("}()")
         return initializer.build()
+    }
+
+    private fun processHiderOrderedFunctionsInfo(ktFileContent: KtFileContent,
+                                                 codeBuilder: CodeBlock.Builder) {
+        codeBuilder.add("val functionAnnotations = HashMap<String, List<Annotation>>()")
+                .nextLine()
+        val funcAnnotationsBlocks = ktFileContent.functions
+                .filter { it is HiderOrderFunc }
+                .map { HiderOrderFunctionAnnotationsGenerator.generate(it as HiderOrderFunc) }
+        for (funcAnnotationsBlock in funcAnnotationsBlocks) {
+            codeBuilder.add(funcAnnotationsBlock)
+        }
+    }
+
+    private fun processClassesInfo(ktFileContent: KtFileContent,
+                                   codeBuilder: CodeBlock.Builder) {
+        codeBuilder.add("val classes: List<ClassInfo<*>> = listOf(")
+                .nextLine()
+        val packageName = ktFileContent.`package`?.name ?: ""
+        val classAnnotationsBlock = ktFileContent.classes
+                .map { ClassGenerator(packageName).generate(it) }
     }
 
     companion object {

@@ -1,11 +1,13 @@
 package org.decembrist.domain.content.functions
 
 import org.decembrist.domain.modifiers.FunctionModifiers
+import org.decembrist.services.TypeSuggestion
 
 class HiderOrderFunc(name: String,
                      functionModifiers: FunctionModifiers,
-                     functionParameters: List<FunctionParameter>)
-    : AbstractFunction(name, functionModifiers, functionParameters) {
+                     functionParameters: List<FunctionParameter>,
+                     returnType: TypeSuggestion)
+    : AbstractFunction(name, functionModifiers, functionParameters, returnType) {
 
     constructor(name: String,
                 isAbstract: Boolean,
@@ -16,7 +18,8 @@ class HiderOrderFunc(name: String,
                 isInline: Boolean,
                 isOperator: Boolean,
                 isSuspend: Boolean,
-                functionParameters: List<FunctionParameter>)
+                functionParameters: List<FunctionParameter>,
+                returnType: TypeSuggestion)
             : this(name, FunctionModifiers(
             isAbstract,
             isFinal,
@@ -25,6 +28,9 @@ class HiderOrderFunc(name: String,
             isInfix,
             isInline,
             isOperator,
-            isSuspend), functionParameters)
+            isSuspend),
+            functionParameters,
+            returnType
+    )
 
 }

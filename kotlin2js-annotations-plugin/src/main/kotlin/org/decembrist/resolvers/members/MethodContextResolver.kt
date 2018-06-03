@@ -6,6 +6,7 @@ import org.decembrist.domain.content.members.Method
 import org.decembrist.services.RuleContextService.getAnnotations
 import org.decembrist.services.RuleContextService.getFunctionModifiers
 import org.decembrist.services.RuleContextService.retrieveFunctionParameters
+import org.decembrist.services.RuleContextService.retrieveFunctionReturnType
 
 class MethodContextResolver(
         private val imports: Collection<Import>) : AbstractMemberContextResolver<Method> {
@@ -14,9 +15,10 @@ class MethodContextResolver(
         val funcContext = ctx.functionDeclaration()
         val annotations = getAnnotations(funcContext, imports)
         val functionParameters = retrieveFunctionParameters(funcContext, imports)
+        val returnType = retrieveFunctionReturnType(funcContext, imports)
         val name = funcContext.identifier().text
         val functionModifiers = getFunctionModifiers(funcContext)
-        return Method(name, functionModifiers, functionParameters).apply {
+        return Method(name, functionModifiers, functionParameters, returnType).apply {
             this.annotations += annotations
         }
     }

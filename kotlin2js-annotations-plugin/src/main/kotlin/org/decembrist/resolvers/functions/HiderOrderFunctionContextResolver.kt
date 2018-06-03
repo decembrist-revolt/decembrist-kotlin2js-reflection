@@ -5,6 +5,7 @@ import org.decembrist.domain.Import
 import org.decembrist.domain.content.functions.HiderOrderFunc
 import org.decembrist.services.RuleContextService.getFunctionModifiers
 import org.decembrist.services.RuleContextService.retrieveFunctionParameters
+import org.decembrist.services.RuleContextService.retrieveFunctionReturnType
 
 class HiderOrderFunctionContextResolver(
         funcName: String,
@@ -13,7 +14,8 @@ class HiderOrderFunctionContextResolver(
     override fun resolve(ctx: FunctionDeclarationContext): HiderOrderFunc {
         val functionModifiers = getFunctionModifiers(ctx)
         val functionParameters = retrieveFunctionParameters(ctx, imports)
-        return HiderOrderFunc(funcName, functionModifiers, functionParameters)
+        val returnType = retrieveFunctionReturnType(ctx, imports)
+        return HiderOrderFunc(funcName, functionModifiers, functionParameters, returnType)
     }
 
 }

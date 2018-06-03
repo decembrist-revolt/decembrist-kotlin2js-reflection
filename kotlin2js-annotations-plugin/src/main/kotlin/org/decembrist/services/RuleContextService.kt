@@ -8,6 +8,7 @@ import org.decembrist.domain.modifiers.ClassModifiers
 import org.decembrist.domain.modifiers.FunctionModifiers
 import org.decembrist.resolvers.AnnotationInstanceContextResolver
 import org.decembrist.services.Modifier.*
+import org.decembrist.services.TypeService.getTypeSuggestion
 
 object RuleContextService {
 
@@ -77,6 +78,17 @@ object RuleContextService {
                 return@map retrieveParameter(parameterCtx, imports)
             }
         } else emptyList()
+    }
+
+    fun retrieveFunctionReturnType(ctx: FunctionDeclarationContext,
+                                   imports: Collection<Import>): TypeSuggestion {
+        val explicitReturnType = ctx.children.contains(ctx.COLON())
+        return if (explicitReturnType) {
+            val indexOfColon = ctx.children.indexOf(ctx.COLON())
+            val returnTypeIndex = indexOfColon + 1
+            val returnType = ctx.children[returnTypeIndex] as TypeContext
+            getTypeSuggestion(returnType, imports)
+        } else TypeSuggestion.Type("Unit", "kotlin")
     }
 
     fun getClassName(ctx: ClassDeclarationContext) = ctx.simpleIdentifier().text

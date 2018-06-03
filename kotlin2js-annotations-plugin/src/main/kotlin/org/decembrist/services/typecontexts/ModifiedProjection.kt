@@ -13,8 +13,15 @@ class ModifiedProjection(val projection: TypeProjectionContext,
 
     override fun typeReference(): TypeReferenceContext? = projection.type().typeReference()
 
+    override fun nullableType(): KotlinParser.NullableTypeContext? = projection
+            .type()
+            .nullableType()
+
     override fun getText() = with(projection) {
-        val type = type().typeReference() ?: type().nullableType().typeReference()
+        val type = type()
+                .typeReference() ?: type()
+                .nullableType()
+                .typeReference()
         type.text
     }
 
