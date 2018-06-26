@@ -2,9 +2,13 @@ package org.decembrist.services
 
 import com.github.sarahbuisson.kotlinparser.KotlinParser.*
 import org.decembrist.domain.Import
-import org.decembrist.services.TypeSuggestion.*
+import org.decembrist.services.ImportService.retrievePackageName
+import org.decembrist.services.typesuggestions.TypeSuggestion.*
 import org.decembrist.services.typecontexts.ModifiedProjection
 import org.decembrist.services.typecontexts.StarType
+import org.decembrist.services.typesuggestions.Projection
+import org.decembrist.services.typesuggestions.TypeSuggestion
+import org.decembrist.services.typesuggestions.UnknownProjection
 
 object TypeService {
 
@@ -36,11 +40,11 @@ object TypeService {
                     .orEmpty()
             val typeName = typeContext.simpleIdentifier().text
             val result = typeSuggestionFromImports(typeName, imports, ctx)
-            if (projections.isNotEmpty()) {
+            if (projections.isNotEmpty() && result is AbstractProjection) {
                 val typeProjections = projections
                         .map { retrieveType(it, typeContext) }
                         .map { getTypeSuggestion(it, imports) }
-                result.projections.addAll(typeProjections)
+                result.projections = typeProjections
             }
             result
         } else {
@@ -49,25 +53,45 @@ object TypeService {
         }
     }
 
+    fun splitFullClassName(fullClassName: String) = if (fullClassName.contains(".")) {
+        val className = fullClassName.substringAfterLast(".")
+        val packageName = fullClassName.substringBeforeLast(".")
+        Pair(className, packageName)
+    } else Pair(fullClassName, "")
+
     private fun typeSuggestionFromImports(typeName: String,
                                           imports: Collection<Import>,
                                           paramCxt: TypeContext): TypeSuggestion {
         return when (typeName) {
-            "*" -> TypeSuggestion.StarType()
+            "*" -> org.decembrist.services.typesuggestions.StarType()
             else -> {
                 val nullable = paramCxt
                         .nullableType()
                         ?.QUEST()
                         ?.isNotEmpty() == true
-                val fullClassName = ImportService.findFullClass(imports, typeName)
+
                 when (paramCxt) {
-                    is ModifiedProjection -> Projection(
-                            fullClassName,
-                            nullable = nullable,
-                            `in` = paramCxt.isIN,
-                            out = paramCxt.isOUT
-                    )
-                    else -> getTypeSuggestion(fullClassName, nullable)
+                    is ModifiedProjection -> {
+                        val packageName = retrievePackageName(imports, typeName)
+                        if (packageName != null) {
+                            Projection(
+                                    typeName,
+                                    nullable,
+                                    packageName,
+                                    paramCxt.isIN,
+                                    paramCxt.isOUT)
+                        } else {
+                            UnknownProjection(
+                                    typeName,
+                                    nullable,
+                                    paramCxt.isIN,
+                                    paramCxt.isOUT)
+                        }
+                    }
+                    else -> {
+                        val fullClassName = ImportService.retrieveFullClass(imports, typeName)
+                        getTypeSuggestion(fullClassName, nullable)
+                    }
                 }
             }
         }

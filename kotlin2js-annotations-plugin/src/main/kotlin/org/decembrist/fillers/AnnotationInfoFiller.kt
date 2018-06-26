@@ -1,6 +1,5 @@
 package org.decembrist.fillers
 
-import com.squareup.kotlinpoet.ClassName
 import org.decembrist.Message.concatenateClassName
 import org.decembrist.Message.lineSeparator
 import org.decembrist.domain.Attribute
@@ -10,12 +9,13 @@ import org.decembrist.domain.content.annotations.AnnotationClass
 import org.decembrist.domain.content.annotations.AnnotationParameter
 import org.decembrist.domain.content.classes.Class
 import org.decembrist.domain.headers.annotations.AnnotationInstance
+import org.decembrist.fillers.exceptions.AnnotationNotFoundException
 import org.decembrist.services.AnnotationService
 import org.decembrist.services.AnnotationService.hasUnknownAttributesInfo
 import org.decembrist.services.AnnotationService.isAttributeWithUnknownName
 import org.decembrist.services.AnnotationService.isAttributeWithUnknownType
-import org.decembrist.services.TypeSuggestion
-import org.decembrist.services.TypeSuggestion.Unknown
+import org.decembrist.services.typesuggestions.TypeSuggestion
+import org.decembrist.services.typesuggestions.TypeSuggestion.Unknown
 import org.decembrist.services.logging.LoggerService
 
 class AnnotationInfoFiller(val fileContents: Collection<KtFileContent>) {

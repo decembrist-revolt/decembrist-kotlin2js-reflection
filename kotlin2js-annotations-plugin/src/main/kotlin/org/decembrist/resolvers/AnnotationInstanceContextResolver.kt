@@ -5,7 +5,7 @@ import com.github.sarahbuisson.kotlinparser.KotlinParser.AnnotationContext
 import org.decembrist.domain.Import
 import org.decembrist.domain.headers.annotations.AnnotationInstance
 import org.decembrist.services.AnnotationService.retrieveAttribute
-import org.decembrist.services.ImportService.findFullClass
+import org.decembrist.services.ImportService.retrieveFullClass
 import org.decembrist.services.TypeService.getTypeSuggestion
 
 class AnnotationInstanceContextResolver(private val imports: Collection<Import>)
@@ -13,7 +13,7 @@ class AnnotationInstanceContextResolver(private val imports: Collection<Import>)
 
     override fun resolve(ctx: AnnotationContext): AnnotationInstance {
         val annotationName = ctx.LabelReference().text.removePrefix("@")
-        val annotationClass = findFullClass(imports, annotationName)
+        val annotationClass = retrieveFullClass(imports, annotationName)
         val type = getTypeSuggestion(annotationClass)
         val annotationInstance = AnnotationInstance(type)
         annotationInstance.attributes.addAll(retrieveAttributes(ctx))

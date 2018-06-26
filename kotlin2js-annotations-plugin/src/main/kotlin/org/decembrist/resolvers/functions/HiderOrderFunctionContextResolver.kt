@@ -14,6 +14,7 @@ class HiderOrderFunctionContextResolver(
     override fun resolve(ctx: FunctionDeclarationContext): HiderOrderFunc {
         val functionModifiers = getFunctionModifiers(ctx)
         val functionParameters = retrieveFunctionParameters(ctx, imports)
+                .toMutableList()
         val returnType = retrieveFunctionReturnType(ctx, imports)
         return HiderOrderFunc(funcName, functionModifiers, functionParameters, returnType)
     }

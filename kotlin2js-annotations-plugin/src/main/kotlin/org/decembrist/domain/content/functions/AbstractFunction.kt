@@ -2,11 +2,11 @@ package org.decembrist.domain.content.functions
 
 import org.decembrist.domain.headers.annotations.AnnotationInstance
 import org.decembrist.domain.modifiers.FunctionModifiers
-import org.decembrist.services.TypeSuggestion
+import org.decembrist.services.typesuggestions.TypeSuggestion
 
 abstract class AbstractFunction(override val name: String,
                                 override val functionModifiers: FunctionModifiers,
-                                override val functionParameters: List<FunctionParameter>,
+                                override var functionParameters: List<FunctionParameter>,
                                 override val returnType: TypeSuggestion) : IFuncContent {
 
     constructor(name: String,

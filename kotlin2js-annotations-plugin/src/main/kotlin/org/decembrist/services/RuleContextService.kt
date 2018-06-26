@@ -2,13 +2,13 @@ package org.decembrist.services
 
 import com.github.sarahbuisson.kotlinparser.KotlinParser.*
 import org.decembrist.domain.Import
-import org.decembrist.domain.content.annotations.AnnotationParameter
 import org.decembrist.domain.content.functions.FunctionParameter
 import org.decembrist.domain.modifiers.ClassModifiers
 import org.decembrist.domain.modifiers.FunctionModifiers
 import org.decembrist.resolvers.AnnotationInstanceContextResolver
 import org.decembrist.services.Modifier.*
 import org.decembrist.services.TypeService.getTypeSuggestion
+import org.decembrist.services.typesuggestions.TypeSuggestion
 
 object RuleContextService {
 
@@ -105,7 +105,7 @@ object RuleContextService {
                                   imports: Collection<Import>): FunctionParameter {
         val name = ctx.simpleIdentifier().text
         val className = ctx.type().text
-        val fullClass = ImportService.findFullClass(imports, className)
+        val fullClass = ImportService.retrieveFullClass(imports, className)
         val type = TypeService.getTypeSuggestion(ctx.type(), imports)
         return FunctionParameter(name, type, null)
     }

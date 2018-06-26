@@ -2,11 +2,11 @@ package org.decembrist.domain.content.functions
 
 import org.decembrist.domain.content.classes.IEntityContent
 import org.decembrist.domain.modifiers.FunctionModifiers
-import org.decembrist.services.TypeSuggestion
+import org.decembrist.services.typesuggestions.TypeSuggestion
 
 interface IFuncContent: IEntityContent {
 
-    val functionParameters: List<FunctionParameter>
+    var functionParameters: List<FunctionParameter>
 
     val functionModifiers: FunctionModifiers
 

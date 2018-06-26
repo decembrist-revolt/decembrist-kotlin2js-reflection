@@ -1,15 +1,14 @@
 package org.decembrist.services
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser
 import com.github.sarahbuisson.kotlinparser.KotlinParser.*
 import org.decembrist.domain.Attribute
 import org.decembrist.domain.Import
 import org.decembrist.domain.content.annotations.AnnotationClass
 import org.decembrist.domain.content.annotations.AnnotationParameter
-import org.decembrist.domain.content.functions.FunctionParameter
 import org.decembrist.domain.headers.annotations.AnnotationInstance
-import org.decembrist.services.ImportService.findFullClass
+import org.decembrist.services.ImportService.retrieveFullClass
 import org.decembrist.services.TypeService.getTypeSuggestion
+import org.decembrist.services.typesuggestions.TypeSuggestion
 
 object AnnotationService {
 
@@ -56,7 +55,7 @@ object AnnotationService {
                           imports: Collection<Import>): AnnotationParameter {
         val name = ctx.simpleIdentifier().text
         val className = ctx.type().text
-        val fullClass = findFullClass(imports, className)
+        val fullClass = retrieveFullClass(imports, className)
         val type = getTypeSuggestion(fullClass)
         return AnnotationParameter(name, type, null)
     }

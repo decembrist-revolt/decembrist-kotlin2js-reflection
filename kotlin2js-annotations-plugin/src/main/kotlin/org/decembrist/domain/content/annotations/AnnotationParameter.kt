@@ -1,7 +1,7 @@
 package org.decembrist.domain.content.annotations
 
 import org.decembrist.Message.quotesOnBlank
-import org.decembrist.services.TypeSuggestion
+import org.decembrist.services.typesuggestions.TypeSuggestion
 
 class AnnotationParameter(val name: String,
                           val type: TypeSuggestion,

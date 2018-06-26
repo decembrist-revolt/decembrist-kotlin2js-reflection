@@ -3,7 +3,7 @@ package org.decembrist.domain.content.members
 import org.decembrist.domain.content.functions.AbstractFunction
 import org.decembrist.domain.content.functions.FunctionParameter
 import org.decembrist.domain.modifiers.FunctionModifiers
-import org.decembrist.services.TypeSuggestion
+import org.decembrist.services.typesuggestions.TypeSuggestion
 
 class Method(name: String,
              functionModifiers: FunctionModifiers,

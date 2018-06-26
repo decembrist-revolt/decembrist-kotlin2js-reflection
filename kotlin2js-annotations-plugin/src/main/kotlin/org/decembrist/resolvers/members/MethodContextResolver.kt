@@ -15,6 +15,7 @@ class MethodContextResolver(
         val funcContext = ctx.functionDeclaration()
         val annotations = getAnnotations(funcContext, imports)
         val functionParameters = retrieveFunctionParameters(funcContext, imports)
+                .toMutableList()
         val returnType = retrieveFunctionReturnType(funcContext, imports)
         val name = funcContext.identifier().text
         val functionModifiers = getFunctionModifiers(funcContext)

@@ -1,7 +1,7 @@
 package org.decembrist.domain.content.functions
 
 import org.decembrist.Message.quotesOnBlank
-import org.decembrist.services.TypeSuggestion
+import org.decembrist.services.typesuggestions.TypeSuggestion
 
 class FunctionParameter(val name: String,
                         val type: TypeSuggestion,

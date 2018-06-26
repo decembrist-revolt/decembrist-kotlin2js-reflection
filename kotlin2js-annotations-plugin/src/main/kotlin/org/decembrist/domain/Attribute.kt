@@ -1,6 +1,6 @@
 package org.decembrist.domain
 
-import org.decembrist.services.TypeSuggestion
+import org.decembrist.services.typesuggestions.TypeSuggestion
 
 data class Attribute(val name: String,
                      val value: String,
