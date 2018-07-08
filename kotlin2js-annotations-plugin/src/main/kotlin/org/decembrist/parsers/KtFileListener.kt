@@ -1,7 +1,6 @@
 package org.decembrist.parsers
 
 import com.github.sarahbuisson.kotlinparser.KotlinParser.*
-import com.github.sarahbuisson.kotlinparser.KotlinParserBaseListener
 import org.antlr.v4.runtime.RuleContext
 import org.decembrist.domain.content.KtFileContent
 import org.decembrist.domain.content.classes.Class
@@ -14,7 +13,7 @@ import org.decembrist.services.ExceptionService.throwUnsupportedAnnotatedTypeExc
 import org.decembrist.services.RuleContextService.getAnnotations
 import org.decembrist.services.RuleContextService.getMemberOwnerClassName
 
-class KtFileListener(private val fileName: String) : KotlinParserBaseListener() {
+class KtFileListener(private val fileName: String) : ParserLibFixListener() {
 
     val fileContent = KtFileContent(fileName)
 
@@ -39,7 +38,8 @@ class KtFileListener(private val fileName: String) : KotlinParserBaseListener() 
      * @throws [UnsupportedOperationException] on unsupported annotated type
      */
     override fun enterFunctionDeclaration(ctx: FunctionDeclarationContext) {
-        if (!isClassMember(ctx)) {
+        super.enterFunctionDeclaration(ctx)
+        if (!isClassMember(ctx) and !isExtensionFunction(ctx)) {
             val annotations = getAnnotations(ctx, fileContent.imports!!.imports)
             try {
                 val functionListener = functionContextResolverFactory
@@ -60,14 +60,16 @@ class KtFileListener(private val fileName: String) : KotlinParserBaseListener() 
      * Retrieves function info and annotations
      */
     override fun enterClassDeclaration(ctx: ClassDeclarationContext) {
-        val annotations = getAnnotations(ctx, imports)
-        val resolver = ClassContextResolverFactory
-                .createInstance(imports)
-                .getResolver(ctx)
-        val `class` = resolver.resolve(ctx).apply {
-            this.annotations += annotations
+        if (classValidation(ctx)) {
+            val annotations = getAnnotations(ctx, imports)
+            val resolver = ClassContextResolverFactory
+                    .createInstance(imports)
+                    .getResolver(ctx)
+            val `class` = resolver.resolve(ctx).apply {
+                this.annotations += annotations
+            }
+            fileContent.classes += `class`
         }
-        fileContent.classes += `class`
     }
 
     override fun enterClassMemberDeclaration(ctx: ClassMemberDeclarationContext) {
@@ -98,5 +100,7 @@ class KtFileListener(private val fileName: String) : KotlinParserBaseListener() 
     private fun isClassMember(ctx: RuleContext): Boolean {
         return ctx.parent is ClassMemberDeclarationContext
     }
+
+    private fun isExtensionFunction(ctx: FunctionDeclarationContext) = ctx.DOT() != null
 
 }

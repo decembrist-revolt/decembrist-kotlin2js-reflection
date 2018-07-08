@@ -7,7 +7,7 @@ import org.decembrist.services.typesuggestions.TypeSuggestion
 abstract class AbstractFunction(override val name: String,
                                 override val functionModifiers: FunctionModifiers,
                                 override var functionParameters: List<FunctionParameter>,
-                                override val returnType: TypeSuggestion) : IFuncContent {
+                                override var returnType: TypeSuggestion) : IFuncContent {
 
     constructor(name: String,
                 isAbstract: Boolean,

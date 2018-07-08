@@ -2,6 +2,7 @@ package org.decembrist.reflection
 
 import org.decembrist.model.ClassInfo
 import org.decembrist.model.FunctionIdentifier
+import org.decembrist.model.MethodInfo
 import org.decembrist.utils.getIdentifier
 import org.decembrist.utils.isMethod
 import org.decembrist.utils.putAndCheck
@@ -46,6 +47,12 @@ object Reflection {
                 .map { it.clazz to it }
                 .toMap()
         this.classes.putAndCheck(classesMap)
+    }
+
+    fun getMethods(kClass: KClass<*>): List<MethodInfo> {
+        return classes[kClass]
+                ?.methods
+                .orEmpty()
     }
 
     private fun checkInit() {

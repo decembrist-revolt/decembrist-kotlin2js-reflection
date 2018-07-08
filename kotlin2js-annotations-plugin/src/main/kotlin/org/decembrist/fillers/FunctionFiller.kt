@@ -58,7 +58,9 @@ class FunctionFiller(val fileContents: Collection<KtFileContent>) {
             return@any when (type) {
                 is Unknown -> true
                 is UnknownProjection -> true
-                is Projection -> hasUnknownTypes(type.projections)
+                is ProjectionContainer -> hasUnknownTypes(
+                        type.projections.plus(type.typeSuggestion)
+                )
                 else -> false
             }
         }
@@ -79,8 +81,14 @@ class FunctionFiller(val fileContents: Collection<KtFileContent>) {
     }
 
     private fun replaceUnknownReturnType(function: Method, packageName: String) {
-        if (function.returnType is Unknown) {
-            replaceUnknownType(function.returnType, packageName)
+        val returnType = function.returnType
+        function.returnType = when (returnType) {
+            is Unknown -> replaceUnknownType(function.returnType, packageName)
+            is UnknownProjection -> replaceUnknownType(function.returnType, packageName)
+            is ProjectionContainer -> if (hasUnknownTypes(returnType.projections)) {
+                replaceUnknownType(function.returnType, packageName)
+            } else returnType
+            else -> returnType
         }
     }
 
@@ -92,21 +100,31 @@ class FunctionFiller(val fileContents: Collection<KtFileContent>) {
                     ?: ClassItem.of(type.type)
         } else ClassItem.of(type.type)
 
-        return if (type is AbstractProjection) {
-            val projections = type.projections
-                    .map { replaceUnknownType(it, packageName) }
-            Projection(
+        return when (type) {
+            is ProjectionContainer -> {
+                val projections = type.projections
+                        .map { replaceUnknownType(it, packageName) }
+                return ProjectionContainer(
+                        Type(
+                                classItem.className,
+                                classItem.packageName,
+                                type.nullable
+                        ),
+                        projections
+                )
+            }
+            is AbstractProjection -> Projection(
                     classItem.className,
                     type.nullable,
                     classItem.packageName,
                     type.`in`,
-                    type.out,
-                    projections)
-        } else {
-            Type(
+                    type.out
+            )
+            else -> Type(
                     classItem.className,
                     classItem.packageName,
-                    type.nullable)
+                    type.nullable
+            )
         }
     }
 

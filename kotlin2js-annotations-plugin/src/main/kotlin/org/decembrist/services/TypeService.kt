@@ -5,10 +5,10 @@ import org.decembrist.domain.Import
 import org.decembrist.services.ImportService.retrievePackageName
 import org.decembrist.services.typesuggestions.TypeSuggestion.*
 import org.decembrist.services.typecontexts.ModifiedProjection
-import org.decembrist.services.typecontexts.StarType
-import org.decembrist.services.typesuggestions.Projection
-import org.decembrist.services.typesuggestions.TypeSuggestion
-import org.decembrist.services.typesuggestions.UnknownProjection
+import org.decembrist.services.typecontexts.VarargsType
+import org.decembrist.services.typesuggestions.*
+import java.util.Collections.singletonList
+import org.decembrist.services.typecontexts.StarType as ContextStarType
 
 object TypeService {
 
@@ -39,18 +39,28 @@ object TypeService {
                     ?.typeProjection()
                     .orEmpty()
             val typeName = typeContext.simpleIdentifier().text
-            val result = typeSuggestionFromImports(typeName, imports, ctx)
-            if (projections.isNotEmpty() && result is AbstractProjection) {
-                val typeProjections = projections
-                        .map { retrieveType(it, typeContext) }
-                        .map { getTypeSuggestion(it, imports) }
-                result.projections = typeProjections
+            var result = typeSuggestionFromImports(typeName, imports, ctx)
+            if (projections.isNotEmpty()) {
+                result = result.toProjectionContainer()
+                    val typeProjections = projections
+                            .map { retrieveType(it, typeContext) }
+                            .map { getTypeSuggestion(it, imports) }
+                    result.projections = typeProjections
             }
             result
         } else {
             val typeName = ctx.text
             typeSuggestionFromImports(typeName, imports, ctx)
         }
+    }
+
+    fun getTypeSuggestion(ctx: VarargsType, imports: Collection<Import>): TypeSuggestion {
+        val arrayType = TypeConstants.ARRAY.type
+        val projections = singletonList(getTypeSuggestion(ctx.ctx, imports))
+        return ProjectionContainer(
+                arrayType,
+                projections
+        )
     }
 
     fun splitFullClassName(fullClassName: String) = if (fullClassName.contains(".")) {
@@ -63,7 +73,7 @@ object TypeService {
                                           imports: Collection<Import>,
                                           paramCxt: TypeContext): TypeSuggestion {
         return when (typeName) {
-            "*" -> org.decembrist.services.typesuggestions.StarType()
+            "*" -> StarType()
             else -> {
                 val nullable = paramCxt
                         .nullableType()
@@ -99,7 +109,7 @@ object TypeService {
 
     private fun retrieveType(projection: TypeProjectionContext,
                              typeContext: SimpleUserTypeContext) = when {
-        projection.MULT() != null -> StarType(typeContext)
+        projection.MULT() != null -> ContextStarType(typeContext)
         projection.typeProjectionModifierList()?.isEmpty?.not() == true -> ModifiedProjection(
                 projection,
                 typeContext

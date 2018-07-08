@@ -2,6 +2,8 @@ package org.decembrist.services
 
 import org.decembrist.reflection.JsClassReflect
 import org.decembrist.reflection.JsFunctionReflect
+import org.decembrist.reflection.JsMethodReflect
+import org.decembrist.reflection.Reflection
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 
@@ -12,6 +14,7 @@ internal object ReflectionService {
     var isCacheEnabled = true
 
     private val classCache = mutableMapOf<String, JsClassReflect<*>>()
+    private val methodsCache = mutableMapOf<KClass<*>, List<JsMethodReflect>>()
 
     fun jsReflectOf(kFunction: KFunction<*>): JsFunctionReflect {
         val getAnnotations = kFunction.asDynamic()[REFLECTION_INFO].getAnnotations
@@ -49,12 +52,29 @@ internal object ReflectionService {
             }
             override val annotations: List<Annotation>
                 get() = getAnnotations()
+
+            override val methods: List<JsMethodReflect>
+                get() = getMethods(kClass)
         }.apply {
             classCache[jsName] = this
         }
     }
 
     fun clearClassCache() = classCache.clear()
+
+    private fun getMethods(kClass: KClass<*>): List<JsMethodReflect> {
+        val methodList = methodsCache[kClass] ?: Reflection.getMethods(kClass)
+                .map {
+                    object : JsMethodReflect {
+                        override val annotations: List<Annotation>
+                            get() = it.annotations
+                        override val name: String
+                            get() = it.method.name
+                    }
+                }
+        methodsCache[kClass] = methodList
+        return methodList
+    }
 
 }
 

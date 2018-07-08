@@ -11,7 +11,7 @@ class WriteFile(private val genSourcesDir: File) {
     }
 
     fun write(fileSpec: FileSpec) {
-//        fileSpec.writeTo(genSourcesDir)
+        fileSpec.writeTo(genSourcesDir)
     }
 
 }

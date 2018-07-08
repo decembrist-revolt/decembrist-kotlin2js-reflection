@@ -10,7 +10,7 @@ interface IFuncContent: IEntityContent {
 
     val functionModifiers: FunctionModifiers
 
-    val returnType: TypeSuggestion
+    var returnType: TypeSuggestion
 
     fun isExternal(): Boolean
 

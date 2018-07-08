@@ -1,16 +1,21 @@
 package org.decembrist.services.typesuggestions
 
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
+import org.decembrist.services.typesuggestions.TypeSuggestion.AbstractProjection
+import org.decembrist.services.typesuggestions.exceptions.UnknownTypeConversionException
 
 class UnknownProjection(type: String,
                         nullable: Boolean = false,
                         `in`: Boolean = false,
-                        out: Boolean = false,
-                        projections: List<TypeSuggestion> = emptyList()
-) : TypeSuggestion.AbstractProjection(type, nullable, `in`, out, projections) {
+                        out: Boolean = false
+) : AbstractProjection(type, nullable, `in`, out) {
 
     override fun toTypeName(): TypeName {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        throw throw UnknownTypeConversionException()
     }
 
+    override fun toClassName(): ClassName {
+        throw throw UnknownTypeConversionException()
+    }
 }

@@ -6,7 +6,6 @@ import org.decembrist.domain.Attribute
 import org.decembrist.domain.content.annotations.AnnotationClass
 import org.decembrist.domain.content.classes.AbstractClass
 import org.decembrist.domain.content.classes.Class
-import org.decembrist.domain.content.functions.HiderOrderFunc
 import org.decembrist.domain.content.members.Method
 import org.decembrist.generators.IGenerator
 import org.decembrist.generators.nextLine
@@ -16,73 +15,57 @@ class ClassGenerator(val packageName: String) : IGenerator<AbstractClass> {
     override fun generate(content: AbstractClass): CodeBlock {
         val className = content.name
         val classType = ClassName(packageName, className)
-        CodeBlock.builder()
-                .add("ClassInfo(")
+        val methodInfoGenerator = MethodInfoGenerator(classType)
+        val codeBlock = CodeBlock.builder()
+                .add("%T(", CLASS_INFO_TYPE)
                 .nextLine()
+                .indent()
                 .add("%T::class,", classType)
+                .nextLine()
         val methodsBlock: CodeBlock = when (content) {
-            is Class -> generateMethodsBlock(content.methods)
+            is Class -> generateMethodsBlock(methodInfoGenerator, content.methods)
             is AnnotationClass -> CodeBlock.of("emptyList()")
             else -> throw UnsupportedOperationException(
                     "Class generator for ${content::class} unsupported yet")
         }
-
-        val annotationsBlock = CodeBlock.builder()
-                .add("functionAnnotations.putAndCheck(")
+        val annotationsBlock: CodeBlock = AnnotationBlockGenerator.generate(content)
+        codeBlock
+                .add(methodsBlock)
+                .add(",")
                 .nextLine()
-                .indent()
-                .add("getIdentifier(::$className),")
+                .add(annotationsBlock)
                 .nextLine()
-        if (content.annotations.isEmpty()) {
-            annotationsBlock
-                    .add("emptyList<Annotation>()")
-                    .nextLine()
-        } else {
-            annotationsBlock
-                    .add("listOf<Annotation>(")
-                    .nextLine()
-                    .indent()
-            var needComma = false
-            for (annotation in content.annotations) {
-                if (needComma) annotationsBlock
-                        .add(",")
-                        .nextLine()
-                val annotationType = annotation.type.toTypeName()
-                val attributesBlock = makeAttributes(annotation.attributes)
-                annotationsBlock
-                        .add("%T::class.jsReflect.createInstance(", annotationType)
-                        .add(attributesBlock)
-                        .add(")")
-                needComma = true
-            }
-            annotationsBlock
-                    .nextLine()
-                    .unindent()
-                    .add(")")
-                    .nextLine()
-                    .unindent()
-                    .add(")")
-                    .nextLine()
-        }
-        return annotationsBlock.build()
+                .unindent()
+                .add(")")
+        return codeBlock.build()
     }
 
-    private fun generateMethodsBlock(methods: Set<Method>): CodeBlock {
+    private fun generateMethodsBlock(methodInfoGenerator: MethodInfoGenerator,
+                                     methods: MutableSet<Method>): CodeBlock {
         return if (methods.isNotEmpty()) {
             val generatedBlock = CodeBlock.builder()
                     .add("listOf(")
-            val blocks = methods
-                    .map { MethodInfoGenerator.generate(it) }
-            for (block in blocks) {
-                if (generatedBlock.isEmpty()) {
+                    .nextLine()
+                    .indent()
+            val methodInfoBlocks = methods
+                    .map { methodInfoGenerator.generate(it) }
+            for (index in 0 until methodInfoBlocks.size){
+                if (index > 0) {
                     generatedBlock
                             .add(",")
-                            .indent()
+                            .nextLine()
                 }
-                generatedBlock.add(block)
+                val methodInfoBlock = methodInfoBlocks[index]
+                generatedBlock.add(methodInfoBlock)
             }
-            generatedBlock.build()
-        } else CodeBlock.of("emptyList(),")
+            generatedBlock
+                    .nextLine()
+                    .unindent()
+                    .add(")")
+                    .build()
+        } else CodeBlock.builder()
+                .add("emptyList()")
+                .build()
     }
 
     private fun generateAnnotations(): CodeBlock {
@@ -97,6 +80,12 @@ class ClassGenerator(val packageName: String) : IGenerator<AbstractClass> {
         result.add(attributesString)
         result.add(")")
         return result.build()
+    }
+
+    companion object {
+
+        val CLASS_INFO_TYPE = ClassName("org.decembrist.model", "ClassInfo")
+
     }
 
 }
