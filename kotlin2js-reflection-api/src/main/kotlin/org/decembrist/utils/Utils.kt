@@ -32,8 +32,7 @@ fun getIdentifier(kFunction: KFunction<*>) = FunctionIdentifier(
         kFunction.toString()
 )
 
-fun getIdentifierBySupplier(functionSupplier: () -> KFunction<*>): FunctionIdentifier {
-    val kFunction = functionSupplier()
+fun <T: KFunction<*>> getIdentifierBySupplier(kFunction: T): FunctionIdentifier {
     return FunctionIdentifier(
             kFunction.name,
             kFunction.toString()

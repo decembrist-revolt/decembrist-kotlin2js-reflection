@@ -57,7 +57,7 @@ object TypeService {
     fun getTypeSuggestion(ctx: VarargsType, imports: Collection<Import>): TypeSuggestion {
         val arrayType = TypeConstants.ARRAY.type
         val projections = singletonList(getTypeSuggestion(ctx.ctx, imports))
-        return ProjectionContainer(
+        return VarargsContainer(
                 arrayType,
                 projections
         )

@@ -50,8 +50,8 @@ sealed class TypeSuggestion(val type: String,
 
     }
 
-    class ProjectionContainer(val typeSuggestion: TypeSuggestion,
-                              var projections: List<TypeSuggestion> = emptyList()
+    open class ProjectionContainer(val typeSuggestion: TypeSuggestion,
+                                   var projections: List<TypeSuggestion> = emptyList()
     ): TypeSuggestion(typeSuggestion.type, typeSuggestion.nullable) {
 
         override fun toClassName() = typeSuggestion.toClassName()

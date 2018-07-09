@@ -86,10 +86,6 @@ class KtFileListener(private val fileName: String) : ParserLibFixListener() {
         }
     }
 
-    private fun addFunction(ctx: FunctionDeclarationContext) {
-
-    }
-
     private fun findClassContent(className: String): Class {
         return fileContent.classes
                 .asReversed()
@@ -102,5 +98,13 @@ class KtFileListener(private val fileName: String) : ParserLibFixListener() {
     }
 
     private fun isExtensionFunction(ctx: FunctionDeclarationContext) = ctx.DOT() != null
+
+    class SomeClass {
+
+        fun jopa(): String = ""
+
+        fun jopa(string: String): Int = 1
+
+    }
 
 }

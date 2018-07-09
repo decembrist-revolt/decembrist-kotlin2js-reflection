@@ -4,26 +4,22 @@ import org.decembrist.domain.content.KtFileContent
 import org.decembrist.domain.content.functions.FunctionParameter
 import org.decembrist.domain.content.functions.IFuncContent
 import org.decembrist.domain.content.members.IMembered
-import org.decembrist.domain.content.members.Method
 import org.decembrist.services.TypeService.splitFullClassName
-import org.decembrist.services.typesuggestions.TypeSuggestion
-import org.decembrist.services.typesuggestions.Projection
+import org.decembrist.services.typesuggestions.*
 import org.decembrist.services.typesuggestions.TypeSuggestion.*
-import org.decembrist.services.typesuggestions.UnknownProjection
 import java.util.Collections.singletonList
 
-class FunctionFiller(val fileContents: Collection<KtFileContent>) {
+class FunctionFiller(private val fileContents: Collection<KtFileContent>) {
 
-    //TODO retrieve all classes by package pair
     private val classItemList: List<ClassItem>
 
     init {
-        classItemList = fileContents
-                .map { fileContent ->
-                    val packageName = fileContent.`package`?.name ?: ""
-                    return@map fileContent.classes
-                            .map { ClassItem(it.name, packageName) }
-                }.flatten()
+        classItemList = fileContents.map { fileContent ->
+            val packageName = fileContent.`package`?.name ?: ""
+            return@map fileContent.classes.map { clazz ->
+                ClassItem(clazz.name, packageName)
+            }
+        }.flatten()
     }
 
     /**
@@ -31,18 +27,33 @@ class FunctionFiller(val fileContents: Collection<KtFileContent>) {
      */
     fun fill(): Collection<KtFileContent> {
         for (fileContent in fileContents) {
-            val methods = fileContent.classes
-                    .filter { it is IMembered }
-                    .map { (it as IMembered).methods }
-                    .flatten()
-            val unknownTypeFunctions = methods.filter { hasUnknownTypes(it) }
-            val packageName = fileContent.`package`?.name ?: ""
-            for (function in unknownTypeFunctions) {
-                replaceUnknownParameters(function, packageName)
-                replaceUnknownReturnType(function, packageName)
-            }
+            fillMethods(fileContent)
+            fillFunctions(fileContent)
         }
         return fileContents
+    }
+
+    private fun fillFunctions(fileContent: KtFileContent) {
+        val functions = fileContent.functions
+        fill(fileContent, functions)
+    }
+
+    private fun fillMethods(fileContent: KtFileContent) {
+        val methods = fileContent.classes
+                .filter { it is IMembered }
+                .map { (it as IMembered).methods }
+                .flatten()
+        val unknownTypeFunctions = methods.filter { hasUnknownTypes(it) }
+        fill(fileContent, unknownTypeFunctions)
+    }
+
+    private fun fill(fileContent: KtFileContent,
+                     functions: Collection<IFuncContent>) {
+        val packageName = fileContent.`package`?.name ?: ""
+        for (function in functions) {
+            replaceUnknownParameters(function, packageName)
+            replaceUnknownReturnType(function, packageName)
+        }
     }
 
     private fun hasUnknownTypes(function: IFuncContent): Boolean {
@@ -80,14 +91,18 @@ class FunctionFiller(val fileContents: Collection<KtFileContent>) {
         function.functionParameters = newParams
     }
 
-    private fun replaceUnknownReturnType(function: Method, packageName: String) {
+    private fun replaceUnknownReturnType(function: IFuncContent, packageName: String) {
         val returnType = function.returnType
         function.returnType = when (returnType) {
             is Unknown -> replaceUnknownType(function.returnType, packageName)
             is UnknownProjection -> replaceUnknownType(function.returnType, packageName)
-            is ProjectionContainer -> if (hasUnknownTypes(returnType.projections)) {
-                replaceUnknownType(function.returnType, packageName)
-            } else returnType
+            is ProjectionContainer -> {
+                val types = returnType.projections
+                        .plus(returnType.typeSuggestion)
+                if (hasUnknownTypes(types)) {
+                    replaceUnknownType(function.returnType, packageName)
+                } else returnType
+            }
             else -> returnType
         }
     }
@@ -101,18 +116,8 @@ class FunctionFiller(val fileContents: Collection<KtFileContent>) {
         } else ClassItem.of(type.type)
 
         return when (type) {
-            is ProjectionContainer -> {
-                val projections = type.projections
-                        .map { replaceUnknownType(it, packageName) }
-                return ProjectionContainer(
-                        Type(
-                                classItem.className,
-                                classItem.packageName,
-                                type.nullable
-                        ),
-                        projections
-                )
-            }
+            is VarargsContainer -> replaceVarargsContainer(classItem, type, packageName)
+            is ProjectionContainer -> replaceProjectionContainer(type, packageName, classItem)
             is AbstractProjection -> Projection(
                     classItem.className,
                     type.nullable,
@@ -128,13 +133,45 @@ class FunctionFiller(val fileContents: Collection<KtFileContent>) {
         }
     }
 
+    private fun replaceVarargsContainer(classItem: ClassItem,
+                                        type: VarargsContainer,
+                                        packageName: String): TypeSuggestion {
+        assert(type.projections.size == 1)
+        val projection = type.projections
+                .first()
+                .let { replaceUnknownType(it, packageName) }
+        val result = if (projection is Type) {
+            if (projection.packageName == "" || projection.packageName == "kotlin") {
+                TypeConstants
+                        .getTypedArrayByType(projection.type)
+                        ?.type
+            } else null
+        } else null
+
+        return result ?: replaceProjectionContainer(
+                type.asProjectionContainer(),
+                packageName,
+                classItem
+        )
+    }
+
+    private fun replaceProjectionContainer(type: ProjectionContainer,
+                                           packageName: String,
+                                           classItem: ClassItem): ProjectionContainer {
+        val projections = type.projections
+                .map { replaceUnknownType(it, packageName) }
+        return ProjectionContainer(
+                Type(
+                        classItem.className,
+                        classItem.packageName,
+                        type.nullable
+                ),
+                projections
+        )
+    }
+
     private class ClassItem(val className: String,
                             val packageName: String) {
-
-        //        override fun toString(): String {
-//            return "@${concatenateClassName(annotationName, packageName)}" +
-//                    "(${parameters.joinToString()})"
-//        }
 
         companion object {
 

@@ -10,6 +10,7 @@ import org.decembrist.resolvers.AnnotationInstanceContextResolver
 import org.decembrist.services.Modifier.*
 import org.decembrist.services.TypeService.getTypeSuggestion
 import org.decembrist.services.typecontexts.VarargsType
+import org.decembrist.services.typesuggestions.StarType
 import org.decembrist.services.typesuggestions.TypeSuggestion
 
 object RuleContextService {
@@ -85,12 +86,17 @@ object RuleContextService {
     fun retrieveFunctionReturnType(ctx: FunctionDeclarationContext,
                                    imports: Collection<Import>): TypeSuggestion {
         val explicitReturnType = ctx.children.contains(ctx.COLON())
-        return if (explicitReturnType) {
-            val indexOfColon = ctx.children.indexOf(ctx.COLON())
-            val returnTypeIndex = indexOfColon + 1
-            val returnType = ctx.children[returnTypeIndex] as TypeContext
-            getTypeSuggestion(returnType, imports)
-        } else TypeSuggestion.Type("Unit", "kotlin")
+        val implicitReturnType = explicitReturnType.not() && ctx.functionBody().ASSIGNMENT() != null
+        return when {
+            explicitReturnType -> {
+                val indexOfColon = ctx.children.indexOf(ctx.COLON())
+                val returnTypeIndex = indexOfColon + 1
+                val returnType = ctx.children[returnTypeIndex] as TypeContext
+                getTypeSuggestion(returnType, imports)
+            }
+            implicitReturnType -> StarType()
+            else -> TypeSuggestion.Type("Unit", "kotlin")
+        }
     }
 
     fun getClassName(ctx: ClassDeclarationContext) = ctx.simpleIdentifier().text
@@ -132,7 +138,8 @@ object RuleContextService {
         return (ctx.parent as FunctionValueParameterContext)
                 .modifierList()
                 ?.modifier()
-                ?.any { it?.parameterModifier()?.VARARG() != null } != null
+                .orEmpty()
+                .any { it?.parameterModifier()?.VARARG() != null }
     }
 
 }

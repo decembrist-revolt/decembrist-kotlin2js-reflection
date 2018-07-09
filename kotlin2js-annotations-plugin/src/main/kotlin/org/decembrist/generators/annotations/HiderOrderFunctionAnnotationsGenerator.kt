@@ -1,20 +1,21 @@
 package org.decembrist.generators.annotations
 
 import com.squareup.kotlinpoet.CodeBlock
-import org.decembrist.domain.Attribute
 import org.decembrist.domain.content.functions.HiderOrderFunc
-import org.decembrist.generators.IGenerator
 import org.decembrist.generators.nextLine
+import org.decembrist.generators.types.HiderOrderedFunctionTypeGenerator
 
-object HiderOrderFunctionAnnotationsGenerator : IGenerator<HiderOrderFunc> {
+object HiderOrderFunctionAnnotationsGenerator : AbstractFunctionInfoGenerator<HiderOrderFunc>() {
+
+    override val functionTypeGenerator = HiderOrderedFunctionTypeGenerator()
 
     override fun generate(content: HiderOrderFunc): CodeBlock {
-        val funcName = content.name
         val functionAnnotations = CodeBlock.builder()
                 .add("functionAnnotations.putAndCheck(")
                 .nextLine()
                 .indent()
-                .add("getIdentifier(::$funcName),")
+                .add(getFunctionIdintifierBlock(content))
+                .add(",")
                 .nextLine()
         val annotationsBlock = AnnotationBlockGenerator.generate(content)
         functionAnnotations
@@ -25,5 +26,7 @@ object HiderOrderFunctionAnnotationsGenerator : IGenerator<HiderOrderFunc> {
                 .nextLine()
         return functionAnnotations.build()
     }
+
+    override fun getFunctionRef(content: HiderOrderFunc) = CodeBlock.of("::${content.name}")
 
 }
