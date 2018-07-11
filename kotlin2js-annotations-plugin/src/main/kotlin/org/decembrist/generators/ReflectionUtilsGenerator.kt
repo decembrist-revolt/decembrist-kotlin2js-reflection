@@ -71,8 +71,12 @@ class ReflectionUtilsGenerator(private val mainClass: String) {
                                                  codeBuilder: CodeBlock.Builder) {
         codeBuilder
                 .add("val functionAnnotations")
-                .add(" = mutableMapOf<%T, List<Annotation>>()", FUNCTION_IDENTIFIER)
-                .nextLine()
+                .add(
+                        " = %T<%T, %T<Annotation>>()",
+                        MUTABLE_MAP_OF_FUNCTION,
+                        FUNCTION_IDENTIFIER,
+                        LIST_TYPE
+                ).nextLine()
         val funcAnnotationsBlocks = ktFileContent.functions
                 .filter { it is HiderOrderFunc }
                 .map { HiderOrderFunctionAnnotationsGenerator.generate(it as HiderOrderFunc) }
@@ -86,8 +90,12 @@ class ReflectionUtilsGenerator(private val mainClass: String) {
      */
     private fun processClassesInfo(ktFileContent: KtFileContent,
                                    codeBuilder: CodeBlock.Builder) {
-        codeBuilder.add("val classes: List<%T<*>> = listOf(", ClassGenerator.CLASS_INFO_TYPE)
-                .nextLine()
+        codeBuilder.add(
+                "val classes: %T<%T<*>> = %T(",
+                LIST_TYPE,
+                ClassGenerator.CLASS_INFO_TYPE,
+                LIST_OF_FUNCTION
+        ).nextLine()
         val packageName = ktFileContent.`package`?.name ?: ""
         val classBlocks = ktFileContent.classes
                 .map { ClassGenerator(packageName).generate(it) }
@@ -129,6 +137,10 @@ class ReflectionUtilsGenerator(private val mainClass: String) {
         val JS_REFLECT_CLASSPATH = ClassName("org.decembrist", "utils")
         val REFLECTION_TYPE = ClassName("org.decembrist.reflection", "Reflection")
         val FUNCTION_IDENTIFIER = ClassName("org.decembrist.model", "FunctionIdentifier")
+        val LIST_TYPE = ClassName("kotlin.collections", "List")
+        val LIST_OF_FUNCTION = ClassName("kotlin.collections", "listOf")
+        val MUTABLE_MAP_OF_FUNCTION = ClassName("kotlin.collections",
+                "mutableMapOf")
 
     }
 

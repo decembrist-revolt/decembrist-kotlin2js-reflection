@@ -1,6 +1,7 @@
 package org.decembrist.services
 
 import com.github.sarahbuisson.kotlinparser.KotlinParser.*
+import org.antlr.v4.runtime.RuleContext
 import org.decembrist.domain.Import
 import org.decembrist.services.ImportService.retrievePackageName
 import org.decembrist.services.typesuggestions.TypeSuggestion.*
@@ -29,16 +30,16 @@ object TypeService {
         val typeReferenceContext =
             ctx.typeReference() ?: ctx.nullableType()?.typeReference()
         //TODO nullable types
-        val typeContext = typeReferenceContext
+        val simpleTypes = typeReferenceContext
                 ?.userType()
                 ?.simpleUserType()
                 .orEmpty()
-                .firstOrNull()
+        val typeContext = simpleTypes.lastOrNull()
         return if (typeContext != null) {
             val projections = typeContext.typeArguments()
                     ?.typeProjection()
                     .orEmpty()
-            val typeName = typeContext.simpleIdentifier().text
+            val typeName = makeTypeName(simpleTypes)
             var result = typeSuggestionFromImports(typeName, imports, ctx)
             if (projections.isNotEmpty()) {
                 result = result.toProjectionContainer()
@@ -68,6 +69,12 @@ object TypeService {
         val packageName = fullClassName.substringBeforeLast(".")
         Pair(className, packageName)
     } else Pair(fullClassName, "")
+
+    private fun makeTypeName(simpleTypes: List<SimpleUserTypeContext>): String {
+        return simpleTypes
+                .map(SimpleUserTypeContext::simpleIdentifier)
+                .joinToString(".") { it.text }
+    }
 
     private fun typeSuggestionFromImports(typeName: String,
                                           imports: Collection<Import>,
