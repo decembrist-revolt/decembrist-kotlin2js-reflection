@@ -8,12 +8,10 @@ import org.decembrist.generators.annotations.ClassGenerator
 import org.decembrist.generators.annotations.HiderOrderFunctionAnnotationsGenerator
 import java.util.*
 
-class ReflectionUtilsGenerator(private val mainClass: String) {
+class ReflectionUtilsGenerator {
 
-    fun generateCode(ktFileContents: Collection<KtFileContent>): List<FileSpec> {
-        val mainClassFile = findMainClassFile(ktFileContents)
-        return ktFileContents.map(this::generateCode)
-    }
+    fun generateCode(ktFileContents: Collection<KtFileContent>): List<FileSpec> = ktFileContents
+            .map(this::generateCode)
 
     private fun generateCode(fileContent: KtFileContent): FileSpec {
         val packageName = fileContent.`package`?.name ?: ""
@@ -30,17 +28,6 @@ class ReflectionUtilsGenerator(private val mainClass: String) {
         addAliasedImports(fileContent, fileSpecBuilder)
         return fileSpecBuilder.build()
     }
-
-    private fun findMainClassFile(ktFileContents: Collection<KtFileContent>) = ktFileContents
-            .firstOrNull { ktFileContent ->
-                val packageName = if (ktFileContent.`package`?.hasPackage()!!) {
-                    ktFileContent.`package`!!.name + "."
-                } else ""
-                val className = if (".kt" in ktFileContent.name) {
-                    ktFileContent.name.replace(".kt", "")
-                } else ktFileContent.name
-                "$packageName$className" == mainClass
-            } ?: throw IllegalArgumentException(nainClassNotFoundMessage(mainClass))
 
     private fun generateReflectionVal(ktFileContents: KtFileContent,
                                       reflectionUUID: String) = PropertySpec

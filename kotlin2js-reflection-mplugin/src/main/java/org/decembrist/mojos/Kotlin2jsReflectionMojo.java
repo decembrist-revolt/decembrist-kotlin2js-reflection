@@ -27,16 +27,10 @@ import static java.util.Collections.singletonList;
 		requiresProject = true,
 		threadSafe = true,
 		requiresDependencyResolution = ResolutionScope.RUNTIME)
-public class ProcessAnnotationsMojo extends AbstractMojo {
+public class Kotlin2jsReflectionMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "${project.build.sourceDirectory}", readonly = true)
 	private File sourceDirectory;
-
-	/**
-	 * Fully qualified name of class with main function
-	 */
-	@Parameter(required = true)
-	private String mainClass;
 
 	/**
 	 * Generated sources output dir
@@ -57,7 +51,7 @@ public class ProcessAnnotationsMojo extends AbstractMojo {
 
 		final SourceParser sourceParser = new SourceParser(getSourceDirs());
 		final Collection<KtFileContent> contentList = sourceParser.parse();
-		final ReflectionUtilsGenerator generator = new ReflectionUtilsGenerator(mainClass);
+		final ReflectionUtilsGenerator generator = new ReflectionUtilsGenerator();
 		final List<FileSpec> fileSpecs = generator.generateCode(contentList);
 		final WriteFile writeFile = new WriteFile(generatedSourcesDir);
 		fileSpecs.forEach(writeFile::write);
@@ -86,5 +80,6 @@ public class ProcessAnnotationsMojo extends AbstractMojo {
 		public void warn(@NotNull String message) {
 			logger.warn(message);
 		}
+
 	}
 }
