@@ -27,7 +27,7 @@ open class Class(name: String,
             isInner,
             isSealed))
 
-    override val annotations: MutableSet<AnnotationInstance> = mutableSetOf()
+    override var annotations: Set<AnnotationInstance> = emptySet()
 
     override val methods: MutableSet<Method> = mutableSetOf()
 

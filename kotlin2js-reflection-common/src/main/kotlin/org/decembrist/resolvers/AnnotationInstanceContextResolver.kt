@@ -15,8 +15,9 @@ class AnnotationInstanceContextResolver(private val imports: Collection<Import>)
         val annotationName = ctx.LabelReference().text.removePrefix("@")
         val annotationClass = retrieveFullClass(imports, annotationName)
         val type = getTypeSuggestion(annotationClass)
-        val annotationInstance = AnnotationInstance(type)
-        annotationInstance.attributes.addAll(retrieveAttributes(ctx))
+        val annotationInstance = AnnotationInstance(type).apply {
+            attributes = retrieveAttributes(ctx)
+        }
         return annotationInstance
     }
 

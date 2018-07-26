@@ -1,46 +1,31 @@
 package org.decembrist.fillers
 
-import org.decembrist.Message.concatenateClassName
 import org.decembrist.Message.lineSeparator
 import org.decembrist.domain.Attribute
 import org.decembrist.domain.content.IAnnotated
 import org.decembrist.domain.content.KtFileContent
-import org.decembrist.domain.content.annotations.AnnotationClass
 import org.decembrist.domain.content.annotations.AnnotationParameter
 import org.decembrist.domain.content.classes.Class
 import org.decembrist.domain.headers.annotations.AnnotationInstance
 import org.decembrist.fillers.exceptions.AnnotationNotFoundException
-import org.decembrist.services.AnnotationService
 import org.decembrist.services.AnnotationService.hasUnknownAttributesInfo
 import org.decembrist.services.AnnotationService.isAttributeWithUnknownName
 import org.decembrist.services.AnnotationService.isAttributeWithUnknownType
+import org.decembrist.services.ReplaceTypeService.replaceUnknownType
+import org.decembrist.services.cache.CacheService
+import org.decembrist.services.logging.LoggerService
+import org.decembrist.services.typesuggestions.TypeConstants
+import org.decembrist.services.typesuggestions.TypeConstants.Companion.isArray
 import org.decembrist.services.typesuggestions.TypeSuggestion
 import org.decembrist.services.typesuggestions.TypeSuggestion.Unknown
-import org.decembrist.services.logging.LoggerService
+import org.decembrist.services.typesuggestions.VarargsContainer
 
-class AnnotationInfoFiller(val fileContents: Collection<KtFileContent>) {
-
-    private val annotationItemList: List<AnnotationItem>
-    private val embeddedJsItemList: List<AnnotationItem>
+open class AnnotationInfoFiller private constructor(
+        private val fileContents: Collection<KtFileContent>) {
 
     init {
-        embeddedJsItemList = AnnotationService.embededJsAnnotations
-                .map { AnnotationItem(it.name, "", it.parameters) }
-        annotationItemList = fileContents
-                .map { fileContent ->
-                    val packageName = fileContent.`package`?.name ?: ""
-                    fileContent.classes.map { packageName to it }
-                }.flatten()
-                .filter { it.second is AnnotationClass }
-                .map { it.first to it.second as AnnotationClass }
-                .map {
-                    val packageName = it.first
-                    val annotation = it.second.name
-                    val parameters = it.second.parameters
-                    AnnotationItem(annotation, packageName, parameters)
-                }
         LoggerService.debug("Supported annotations:")
-        LoggerService.debug(annotationItemList.joinToString(lineSeparator))
+        LoggerService.debug(CacheService.getAnnotationCache().joinToString(lineSeparator))
     }
 
     /**
@@ -71,7 +56,7 @@ class AnnotationInfoFiller(val fileContents: Collection<KtFileContent>) {
                                    packageName: String) {
         val filledAnnotationsList = entity.annotations.map { annotation ->
             return@map try {
-                var annotationItem: AnnotationItem? = null
+                var annotationItem: CacheService.AnnotationInstanceItem? = null
                 val filledAttributes = if (hasUnknownAttributesInfo(annotation)) {
                     val annotationType = annotation.type
                     annotationItem = getAnnotationItemByType(annotationType, packageName)
@@ -81,35 +66,58 @@ class AnnotationInfoFiller(val fileContents: Collection<KtFileContent>) {
                     if (annotationItem == null) {
                         throw AnnotationNotFoundException(annotationType.toString())
                     }
-                    annotation.attributes.mapIndexed { index, attribute ->
-                        val parameter = annotationItem.parameters[index]
-                        return@mapIndexed fillAttribute(attribute, parameter)
-                    }
+                    fillAttributes(annotation.attributes, annotationItem, packageName)
                 } else annotation.attributes
                 val newAnnotation = if (annotationItem == null) {
                     annotation
                 } else AnnotationInstance(annotationItem.getTypeSuggestion())
                 newAnnotation.apply {
-                    attributes.clear()
-                    attributes.addAll(filledAttributes)
+                    attributes = filledAttributes
                 }
             } catch (ex: AnnotationNotFoundException) {
                 LoggerService.warn(ex.message!!)
                 null
             }
-        }.filterNotNull()
+        }.filterNotNull().toSet()
         entity.apply {
-            entity.annotations.clear()
-            annotations.addAll(filledAnnotationsList)
+            annotations = filledAnnotationsList
         }
+    }
+
+    private fun fillAttributes(attributes: List<Attribute>,
+                               annotationItem: CacheService.AnnotationInstanceItem,
+                               packageName: String): List<Attribute> {
+        var varargParam: AnnotationParameter? = null
+        val newAttributes: MutableList<Attribute> = mutableListOf()
+        for (index in 0 until attributes.size) {
+            val parameter = varargParam ?: annotationItem.parameters[index]
+            val attribute = attributes[index]
+            if (parameter.type is VarargsContainer) {
+                if (varargParam == null) {
+                    val newAttribute = fillAttribute(attribute, parameter, packageName)
+                    newAttributes.add(newAttribute)
+                    varargParam = parameter
+                } else {
+                    val newAttribute = newAttributes.pop()
+                    val name = newAttribute.name
+                    val type = newAttribute.type
+                    val value = addVarargValue(newAttribute.value, attribute.value, type)
+                    newAttributes.add(Attribute(name, value, type))
+                }
+            } else {
+                val newAttribute = fillAttribute(attribute, parameter, packageName)
+                newAttributes.add(newAttribute)
+            }
+        }
+        return newAttributes
     }
 
     /**
      * Tries to find connected annotation class in class path
      */
     private fun getAnnotationItemByType(type: TypeSuggestion,
-                                        packageName: String): AnnotationItem? {
-        val annotationItem = annotationItemList.firstOrNull { annotationItem ->
+                                        packageName: String): CacheService.AnnotationInstanceItem? {
+        return CacheService.getAnnotationCache().firstOrNull { annotationItem ->
             return@firstOrNull if (annotationItem.annotationName == type.type) {
                 if (type is TypeSuggestion.Type) {
                     annotationItem.packageName == type.packageName
@@ -118,38 +126,79 @@ class AnnotationInfoFiller(val fileContents: Collection<KtFileContent>) {
                 }
             } else false
         }
-        return annotationItem
     }
 
     /**
      * Tries to find connected annotation class in kotlin js annotations
      */
-    private fun findInEmbeddings(type: TypeSuggestion): AnnotationItem? {
-        return embeddedJsItemList.firstOrNull { annotationItem ->
+    private fun findInEmbeddings(type: TypeSuggestion): CacheService.AnnotationInstanceItem? {
+        return CacheService.getEmbeddedJsAnnotationCache().firstOrNull { annotationItem ->
             annotationItem.annotationName == type.type
         }
     }
 
     private fun fillAttribute(attribute: Attribute,
-                              parameter: AnnotationParameter): Attribute {
+                              parameter: AnnotationParameter,
+                              packageName: String): Attribute {
         return if (isAttributeWithUnknownName(attribute) or isAttributeWithUnknownType(attribute)) {
-            Attribute(parameter.name, attribute.value, parameter.type)
+            val type = replaceUnknownType(parameter.type, packageName)
+            val isVararg = parameter.type is VarargsContainer
+            val value = fillValue(attribute.value, type, isVararg)
+            Attribute(parameter.name, value, type)
         } else attribute
     }
 
-    private class AnnotationItem(val annotationName: String,
-                                 val packageName: String,
-                                 val parameters: List<AnnotationParameter>) {
-
-        fun getTypeSuggestion() = TypeSuggestion.Type(
-                annotationName,
-                packageName
-        )
-
-        override fun toString(): String {
-            return "@${concatenateClassName(annotationName, packageName)}" +
-                    "(${parameters.joinToString()})"
+    private fun addVarargValue(string: String, value: String, type: TypeSuggestion) = when {
+        string.startsWith("arrayOf(") -> {
+            val addition = string.replaceBeforeLast(")", ", $value")
+            string.removeSuffix(")") + addition
         }
+        else -> throw UnsupportedOperationException(
+                "value $value not supported for annotation vararg parameter")
+    }
+
+    private tailrec fun fillValue(value: String,
+                                  type: TypeSuggestion,
+                                  isVararg: Boolean): String {
+        val fixedValue = removeBraces(value)
+        return when {
+            isVararg -> when {
+                fixedValue.startsWith("*") -> fillValue(
+                        fixedValue.substringAfter("*"),
+                        type,
+                        false
+                )
+                else -> "arrayOf($fixedValue)"
+            }
+            isArray(type) -> when {
+                fixedValue.startsWith("arrayOf(") -> fixedValue
+                fixedValue.startsWith("[") && fixedValue.endsWith("]") -> {
+                    val items = fixedValue.removeSurrounding("[", "]")
+                    "arrayOf($items)"
+                }
+                else -> throw UnsupportedOperationException(
+                        "value $fixedValue not supported for annotation vararg parameter")
+            }
+            else -> fixedValue
+        }
+    }
+
+    private tailrec fun removeBraces(value: String): String {
+        return if (value.startsWith("(")) {
+            removeBraces(value.removeSurrounding("(", ")"))
+        } else value
+    }
+
+    private fun MutableList<Attribute>.pop(): Attribute {
+        val lastIndex = lastIndex
+        val last = last()
+        removeAt(lastIndex)
+        return last
+    }
+
+    companion object {
+
+        fun of(fileContents: Collection<KtFileContent>) = AnnotationInfoFiller(fileContents)
 
     }
 

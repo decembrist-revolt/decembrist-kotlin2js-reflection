@@ -1,0 +1,36 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+def checkWin() {
+    return Os.isFamily(Os.FAMILY_WINDOWS)
+}
+
+def getMvn() {
+    def ending = ""
+    if (checkWin()) {
+        ending = ".cmd"
+    }
+    return "mvn${ending}"
+}
+
+task installReflectionCommon(type: Exec) {
+    def mavenExecutable = getMvn()
+    workingDir "kotlin2js-reflection-common"
+    executable mavenExecutable
+    args "install"
+}
+
+task installReflectionCommonTest(type: Exec) {
+    def mavenExecutable = getMvn()
+    workingDir "kotlin2js-reflection-common-test"
+    executable mavenExecutable
+    args "test"
+}
+
+task runAllTestWithoutInstall {}
+
+task runAllTest {}
+
+runAllTestWithoutInstall.finalizedBy(installReflectionCommonTest)
+
+runAllTest.finalizedBy(installReflectionCommon)
+runAllTest.finalizedBy(installReflectionCommonTest)

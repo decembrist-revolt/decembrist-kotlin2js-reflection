@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker
 import org.decembrist.domain.content.KtFileContent
 import java.io.File
 
-class KtFileParser(val ktFile: File) : IParser<KtFileContent> {
+open class KtFileParser private constructor(private val ktFile: File) : IParser<KtFileContent> {
 
     override fun parse(): KtFileContent {
         val fileListener = KtFileListener(ktFile.name)
@@ -20,6 +20,12 @@ class KtFileParser(val ktFile: File) : IParser<KtFileContent> {
                 .kotlinFile()
         ParseTreeWalker().walk(fileListener, tree)
         return fileListener.fileContent
+    }
+
+    companion object {
+
+        fun of(ktFile: File) = KtFileParser(ktFile)
+
     }
 
 }

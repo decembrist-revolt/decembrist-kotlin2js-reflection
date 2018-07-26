@@ -21,7 +21,7 @@ abstract class AbstractClass(override val name: String,
                     isInner,
                     isSealed))
 
-    override val annotations: MutableSet<AnnotationInstance> = mutableSetOf()
+    override var annotations: Set<AnnotationInstance> = emptySet()
 
     override fun isAbstract() = classModifiers.isAbstract!!
 

@@ -39,7 +39,7 @@ object AnnotationBlockGenerator: IGenerator<IAnnotated> {
         return annotationsBlock.build()
     }
 
-    private fun makeAttributes(attributes: MutableList<Attribute>): CodeBlock {
+    private fun makeAttributes(attributes: List<Attribute>): CodeBlock {
         val result = CodeBlock.builder().add("arrayOf(")
         val attributesString = attributes.joinToString { attribute ->
             if (attribute.type.type == "String") "\"${attribute.value}\"" else attribute.value

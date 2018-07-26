@@ -20,6 +20,8 @@ sealed class TypeSuggestion(val type: String,
         override fun toTypeName(): TypeName {
             throw UnknownTypeConversionException()
         }
+
+        override fun toString() = "Unknown(${super.toString()})"
     }
 
     open class Type(type: String,
@@ -29,6 +31,26 @@ sealed class TypeSuggestion(val type: String,
         override fun toClassName(): ClassName = ClassName(packageName, type)
 
         override fun toTypeName(): TypeName = toClassName().asNullable(nullable)
+
+        override fun toString() = "Type(${super.toString()})"
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Type) return false
+            if (!super.equals(other)) return false
+
+            if (packageName != other.packageName) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + packageName.hashCode()
+            return result
+        }
+
+
     }
 
     abstract class AbstractProjection(type: String,
@@ -64,6 +86,11 @@ sealed class TypeSuggestion(val type: String,
             return ParameterizedTypeName.get(className, *projectionTypes).asNullable(nullable)
         }
 
+        override fun toString(): String {
+            val typeString = typeSuggestion.toString()
+            return "$typeString${projections.joinToString(prefix = "<", postfix = ">")}"
+        }
+
     }
 
     abstract fun toClassName(): ClassName
@@ -84,5 +111,23 @@ sealed class TypeSuggestion(val type: String,
             concatenateClassName(type, packageName)
         } else type
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (this::class.isInstance(other).not()) return false
+
+        other as TypeSuggestion
+        if (type != other.type) return false
+        if (nullable != other.nullable) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = type.hashCode()
+        result = 31 * result + nullable.hashCode()
+        return result
+    }
+
 
 }

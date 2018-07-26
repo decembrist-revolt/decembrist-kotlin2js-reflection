@@ -99,12 +99,4 @@ class KtFileListener(private val fileName: String) : ParserLibFixListener() {
 
     private fun isExtensionFunction(ctx: FunctionDeclarationContext) = ctx.DOT() != null
 
-    class SomeClass {
-
-        fun jopa(): String = ""
-
-        fun jopa(string: String): Int = 1
-
-    }
-
 }

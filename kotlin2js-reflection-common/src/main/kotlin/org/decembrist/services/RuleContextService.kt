@@ -1,8 +1,8 @@
 package org.decembrist.services
 
 import com.github.sarahbuisson.kotlinparser.KotlinParser.*
-import org.antlr.v4.runtime.ParserRuleContext
 import org.decembrist.domain.Import
+import org.decembrist.domain.content.annotations.AnnotationParameter
 import org.decembrist.domain.content.functions.FunctionParameter
 import org.decembrist.domain.modifiers.ClassModifiers
 import org.decembrist.domain.modifiers.FunctionModifiers
@@ -83,6 +83,14 @@ object RuleContextService {
         } else emptyList()
     }
 
+    fun retrieveParameters(primaryConstructor: PrimaryConstructorContext?,
+                           imports: Collection<Import>): List<AnnotationParameter> {
+        return primaryConstructor
+                ?.classParameters()
+                ?.classParameter()
+                ?.map { retrieveParameter(it, imports) } ?: emptyList()
+    }
+
     fun retrieveFunctionReturnType(ctx: FunctionDeclarationContext,
                                    imports: Collection<Import>): TypeSuggestion {
         val explicitReturnType = ctx.children.contains(ctx.COLON())
@@ -120,6 +128,19 @@ object RuleContextService {
     }
 
     /**
+     * TODO default value
+     */
+    private fun retrieveParameter(ctx: ClassParameterContext,
+                                  imports: Collection<Import>): AnnotationParameter {
+        val name = ctx.simpleIdentifier().text
+        val type = if (checkVarargs(ctx)) {
+            val varargsType = VarargsType.of(ctx.type())
+            TypeService.getTypeSuggestion(varargsType, imports)
+        } else TypeService.getTypeSuggestion(ctx.type(), imports)
+        return AnnotationParameter(name, type, null)
+    }
+
+    /**
      * @return triple (isAbstract, isFinal, isOpen) modifiers
      */
     private fun getEntityModifiers(
@@ -137,6 +158,13 @@ object RuleContextService {
     private fun checkVarargs(ctx: ParameterContext): Boolean {
         return (ctx.parent as FunctionValueParameterContext)
                 .modifierList()
+                ?.modifier()
+                .orEmpty()
+                .any { it?.parameterModifier()?.VARARG() != null }
+    }
+
+    private fun checkVarargs(ctx: ClassParameterContext): Boolean {
+        return ctx.modifierList()
                 ?.modifier()
                 .orEmpty()
                 .any { it?.parameterModifier()?.VARARG() != null }

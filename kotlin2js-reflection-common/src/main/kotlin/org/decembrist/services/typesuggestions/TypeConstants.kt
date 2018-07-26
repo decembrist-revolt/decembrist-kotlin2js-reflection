@@ -28,6 +28,42 @@ enum class TypeConstants(val type: TypeSuggestion) {
             else -> null
         }
 
+        fun isStringArray(type: TypeSuggestion): Boolean {
+            return if (type is TypeSuggestion.ProjectionContainer) {
+                if (type.typeSuggestion == ARRAY || type.typeSuggestion == Type("Array", "")) {
+                    val projection = type.projections.first()
+                    projection == Type("String", "")
+                            || projection == Type("String", "kotlin")
+                } else false
+            } else false
+        }
+
+        fun isArray(type: TypeSuggestion): Boolean {
+            return if (type is TypeSuggestion.ProjectionContainer) {
+                equalsIgnorePackage(type.typeSuggestion, ARRAY)
+            } else when {
+                equalsIgnorePackage(type, INT_ARRAY) -> true
+                equalsIgnorePackage(type, FLOAT_ARRAY) -> true
+                equalsIgnorePackage(type, LONG_ARRAY) -> true
+                equalsIgnorePackage(type, SHORT_ARRAY) -> true
+                equalsIgnorePackage(type, BOOLEAN_ARRAY) -> true
+                equalsIgnorePackage(type, BYTE_ARRAY) -> true
+                equalsIgnorePackage(type, CHAR_ARRAY) -> true
+                equalsIgnorePackage(type, DOUBLE_ARRAY) -> true
+                else -> false
+            }
+        }
+
+        fun equalsIgnorePackage(type: TypeSuggestion, constant: TypeConstants): Boolean {
+            return if (type == constant.type) true else {
+                if (type is Type) {
+                    if (type.packageName == "") {
+                        type.type == constant.type.type
+                    } else false
+                } else false
+            }
+        }
+
     }
 
 }

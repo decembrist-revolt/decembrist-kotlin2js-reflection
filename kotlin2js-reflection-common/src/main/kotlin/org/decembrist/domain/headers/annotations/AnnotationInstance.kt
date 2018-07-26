@@ -6,6 +6,6 @@ import org.decembrist.services.typesuggestions.TypeSuggestion
 
 class AnnotationInstance(val type: TypeSuggestion) : IContent {
 
-    val attributes = mutableListOf<Attribute>()
+    var attributes = emptyList<Attribute>()
 
 }

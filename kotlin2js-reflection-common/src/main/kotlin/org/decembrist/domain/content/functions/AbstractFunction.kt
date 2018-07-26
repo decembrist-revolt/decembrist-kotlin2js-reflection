@@ -33,7 +33,7 @@ abstract class AbstractFunction(override val name: String,
             returnType
     )
 
-    override val annotations: MutableSet<AnnotationInstance> = mutableSetOf()
+    override var annotations: Set<AnnotationInstance> = emptySet()
 
     override fun isAbstract() = functionModifiers.isAbstract!!
 

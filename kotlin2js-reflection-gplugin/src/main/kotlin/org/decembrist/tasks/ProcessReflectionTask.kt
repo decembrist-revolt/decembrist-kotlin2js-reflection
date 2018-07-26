@@ -33,13 +33,12 @@ open class ProcessReflectionTask : DefaultTask() {
     }
 
     private fun getSourceDirectories(): List<File> {
-        return extension.sourceDirectories
-                .map { sourceDirectory ->
-                    if (sourceDirectory.exists().and(sourceDirectory.isDirectory)) {
-                        sourceDirectory
-                    } else throw FileNotFoundException(
-                            "one of sourceDirectories param = $sourceDirectory dir not found")
-                }
+        return extension.sourceDirectories.map { sourceDirectory ->
+            if (sourceDirectory.exists().and(sourceDirectory.isDirectory)) {
+                sourceDirectory
+            } else throw FileNotFoundException(
+                    "one of sourceDirectories param = $sourceDirectory dir not found")
+        }
     }
 
     private fun checkKotlin2JsPluginExistence() {

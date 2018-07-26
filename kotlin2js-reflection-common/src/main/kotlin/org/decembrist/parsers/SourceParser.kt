@@ -5,6 +5,7 @@ import org.decembrist.domain.content.KtFileContent
 import org.decembrist.fillers.AnnotationInfoFiller
 import org.decembrist.fillers.FunctionFiller
 import org.decembrist.services.FilesService.flatFiles
+import org.decembrist.services.cache.CacheService
 import java.io.File
 
 class SourceParser(private val sourceDirs: Collection<File>) {
@@ -13,21 +14,31 @@ class SourceParser(private val sourceDirs: Collection<File>) {
         checkSources()
     }
 
+    /**
+     * Parse and fill kt files
+     */
     fun parse(): Collection<KtFileContent> {
         val ktFiles = sourceDirs
                 .map { flatFiles(it) }
                 .flatten()
                 .filter { it.extension == "kt" }
-        var fileContentList: Collection<KtFileContent> = ktFiles.map { KtFileParser(it).parse() }
-        fileContentList = AnnotationInfoFiller(fileContentList).fill()
-        fileContentList = FunctionFiller(fileContentList).fill()
-        return fileContentList
+        return ktFiles
+                .map { KtFileParser.of(it).parse() }
+                .apply { CacheService.cache(this) }
+                .let { AnnotationInfoFiller.of(it).fill() }
+                .let { FunctionFiller.of(it).fill() }
     }
 
-    private fun checkSources() = sourceDirs.forEach(::checkFolderExistance)
+    /**
+     * Every folder should exist or be folder
+     */
+    private fun checkSources() = sourceDirs.forEach(::checkFolderExistence)
 
-    private fun checkFolderExistance(folder: File) {
-        if (!(folder.exists() and folder.isDirectory))
+    /**
+     * Throw exception if any source is not folder or doesn't exist
+     */
+    private fun checkFolderExistence(folder: File) {
+        if ((folder.exists() and folder.isDirectory).not())
             throw IllegalArgumentException(folderExistenceFailedMessage(folder.path))
     }
 }

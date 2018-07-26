@@ -6,6 +6,12 @@ class VarargsContainer(typeSuggestion: TypeSuggestion,
                        projections: List<TypeSuggestion> = emptyList())
     : ProjectionContainer(typeSuggestion, projections) {
 
+    init {
+        assert(projections.size == 1)
+    }
+
     fun asProjectionContainer() = ProjectionContainer(typeSuggestion, projections)
+
+    override fun toString() = "varargs ${projections.first()}"
 
 }
