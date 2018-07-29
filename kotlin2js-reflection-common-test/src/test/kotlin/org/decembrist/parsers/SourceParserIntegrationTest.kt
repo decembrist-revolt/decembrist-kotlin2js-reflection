@@ -1,5 +1,6 @@
 package org.decembrist.parsers
 
+import org.decembrist.common.TestCommon
 import org.decembrist.domain.Attribute
 import org.decembrist.services.logging.Logger
 import org.decembrist.services.logging.LoggerService
@@ -12,7 +13,21 @@ import org.junit.jupiter.api.Test
 import java.io.File
 import java.util.Collections.singletonList
 
-class SourceParserIntegrationTest {
+class SourceParserIntegrationTest: TestCommon() {
+
+    override val testFilesFolder = "$TEST_FILES${File.separator}$SOURCE_PARSER${File.separator}"
+
+    val KT_FILE1 = "KtFile1.kt"
+    val KT_FILE2 = "KtFile2.kt"
+    val KT_FILE3 = "KtFile3.kt"
+    val KT_FILE4 = "KtFile4.kt"
+    val KT_FILE5 = "KtFile5.kt"
+
+    val ktFile1 = getResourceFile(generatePath(KT_FILE1))
+    val ktFile2 = getResourceFile(generatePath(KT_FILE2))
+    val ktFile3 = getResourceFile(generatePath(KT_FILE3))
+    val ktFile4 = getResourceFile(generatePath(KT_FILE4))
+    val ktFile5 = getResourceFile(generatePath(KT_FILE5))
 
     @Test
     fun primitivesAnnotationParamsParseTest() {
@@ -251,33 +266,10 @@ class SourceParserIntegrationTest {
         attributes.forEach { assertEquals(stringType, it.type) }
     }
 
-
-    open class OkFolder : File(SourceParserTest.TEST_FILE) {
-        override fun exists() = true
-        override fun isDirectory() = true
-    }
-
     companion object {
 
         private const val TEST_FILES = "test-files"
-
-        val KT_FILE1 = "KtFile1.kt"
-        val KT_FILE2 = "KtFile2.kt"
-        val KT_FILE3 = "KtFile3.kt"
-        val KT_FILE4 = "KtFile4.kt"
-        val KT_FILE5 = "KtFile5.kt"
-        val TEST_FILES_FOLDER = "$TEST_FILES${File.separator}"
-        val KT_FILE1_PATH = "$TEST_FILES_FOLDER$KT_FILE1"
-        val KT_FILE2_PATH = "$TEST_FILES_FOLDER$KT_FILE2"
-        val KT_FILE3_PATH = "$TEST_FILES_FOLDER$KT_FILE3"
-        val KT_FILE4_PATH = "$TEST_FILES_FOLDER$KT_FILE4"
-        val KT_FILE5_PATH = "$TEST_FILES_FOLDER$KT_FILE5"
-
-        val ktFile1 = getResourceFile(KT_FILE1_PATH)
-        val ktFile2 = getResourceFile(KT_FILE2_PATH)
-        val ktFile3 = getResourceFile(KT_FILE3_PATH)
-        val ktFile4 = getResourceFile(KT_FILE4_PATH)
-        val ktFile5 = getResourceFile(KT_FILE5_PATH)
+        private const val SOURCE_PARSER = "source-parser"
 
         @BeforeAll
         @JvmStatic
@@ -286,13 +278,6 @@ class SourceParserIntegrationTest {
                 override fun debug(message: String) {}
                 override fun warn(message: String) {}
             }
-        }
-
-        fun getResourceFile(filePath: String): File {
-            val fileUrl = SourceParserIntegrationTest::class.java
-                    .classLoader
-                    .getResource(filePath)
-            return File(fileUrl.toURI())
         }
 
     }

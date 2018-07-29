@@ -2,7 +2,6 @@ package org.decembrist.generators.annotations
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
-import org.decembrist.domain.Attribute
 import org.decembrist.domain.content.annotations.AnnotationClass
 import org.decembrist.domain.content.classes.AbstractClass
 import org.decembrist.domain.content.classes.Class
@@ -37,7 +36,8 @@ class ClassGenerator(val packageName: String) : IGenerator<AbstractClass> {
                 .nextLine()
                 .unindent()
                 .add(")")
-        return codeBlock.build()
+        val classEmpty = isClassEmpty(methodsBlock, annotationsBlock)
+        return if (classEmpty) CodeBlock.of("") else codeBlock.build()
     }
 
     private fun generateMethodsBlock(methodInfoGenerator: MethodInfoGenerator,
@@ -49,7 +49,7 @@ class ClassGenerator(val packageName: String) : IGenerator<AbstractClass> {
                     .indent()
             val methodInfoBlocks = methods
                     .map { methodInfoGenerator.generate(it) }
-            for (index in 0 until methodInfoBlocks.size){
+            for (index in 0 until methodInfoBlocks.size) {
                 if (index > 0) {
                     generatedBlock
                             .add(",")
@@ -68,18 +68,9 @@ class ClassGenerator(val packageName: String) : IGenerator<AbstractClass> {
                 .build()
     }
 
-    private fun generateAnnotations(): CodeBlock {
-        TODO()
-    }
-
-    private fun makeAttributes(attributes: MutableList<Attribute>): CodeBlock {
-        val result = CodeBlock.builder().add("arrayOf(")
-        val attributesString = attributes.joinToString { attribute ->
-            if (attribute.type.type == "String") "\"${attribute.value}\"" else attribute.value
-        }
-        result.add(attributesString)
-        result.add(")")
-        return result.build()
+    fun isClassEmpty(methodsBlock: CodeBlock, annotationsBlock: CodeBlock): Boolean {
+        return methodsBlock.toString() == "emptyList()"
+                && annotationsBlock.toString() == "emptyList<Annotation>()"
     }
 
     companion object {
