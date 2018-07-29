@@ -73,6 +73,6 @@ object FunctionUtils {
 
     class Function(val name: String, val paramTypes: List<Type>, val returnType: Type)
 
-    class Type(val clazz: String, val subTypes: List<Type> = emptyList())
+    data class Type(val clazz: String, val subTypes: List<Type> = emptyList())
 
 }

@@ -1,8 +1,9 @@
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KMutableProperty
+import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.valueParameters
 
 /**
  * Code for evaluating js reflection
@@ -36,7 +37,40 @@ class MethodInfo(val method: FunctionIdentifier,
 
 class JsReflect<T : Any>(val kClass: KClass<T>) {
     fun createInstance(args: Array<Any>): T {
-        return kClass.primaryConstructor!!.call(*args)
+        val primaryConstructor = kClass.primaryConstructor
+        return if (primaryConstructor != null) {
+            val returnTypes = primaryConstructor.parameters
+                    .map { it.type }
+            val castedArgs = args.mapIndexed { index, arg ->
+                val type = returnTypes[index]
+                val clazz = type.classifier as KClass<*>
+                return@mapIndexed castByType(clazz, arg)
+            }.toTypedArray()
+            primaryConstructor.call(*castedArgs)
+        } else {
+            kClass.createInstance()
+        }
+    }
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : Any> castByType(clazz: KClass<T>, arg: Any): T {
+        return when (clazz) {
+            String::class -> arg as T
+            Byte::class -> (arg as Int).toByte() as T
+            Short::class -> (arg as Int).toShort() as T
+            ByteArray::class -> (arg as Array<Int>)
+                    .map { castByType(Byte::class, it) }
+                    .toByteArray() as T
+            ShortArray::class -> (arg as Array<Int>)
+                    .map { castByType(Short::class, it) }
+                    .toShortArray() as T
+            IntArray::class -> (arg as Array<Int>).toIntArray() as T
+            LongArray::class -> (arg as Array<Long>).toLongArray() as T
+            FloatArray::class -> (arg as Array<Float>).toFloatArray() as T
+            DoubleArray::class -> (arg as Array<Double>).toDoubleArray() as T
+            CharArray::class -> (arg as Array<Char>).toCharArray() as T
+            BooleanArray::class -> (arg as Array<Boolean>).toBooleanArray() as T
+            else -> arg as T
+        }
     }
 }
 
@@ -81,24 +115,60 @@ object Reflection {
         val name = annotation.toString()
                 .substringBefore("(")
                 .removePrefix("@")
-        val params = annotation.annotationClass.memberProperties
-                .joinToString(",", "[", "]") { param ->
+        val primaryConstructor = annotation.annotationClass.primaryConstructor
+        val params = primaryConstructor?.parameters
+                ?.joinToString(",", "[", "]") { param ->
                     val value = annotation.annotationClass.java
                             .methods
                             .first { it.name == param.name }
                             .invoke(annotation)
-                    """{
+                            .let(::valueToString)
+                    return@joinToString """{
                 "name": "${param.name}",
-                "type": "${param.returnType}",
-                "value": "$value"
+                "type": "${param.type}",
+                "value": $value
             }""".trimIndent()
-                }
+                } ?: "[]"
         return """
         {
             "name": "$name",
             "params": $params
         }
     """.trimIndent()
+    }
+
+    private fun valueToString(value: Any): String {
+        return if (value is Array<*>) {
+            value.joinToString(",", "[", "]") {
+                """"$it""""
+            }
+        } else when (value) {
+            is ByteArray -> value.joinToString(",", "[", "]") {
+                """"$it""""
+            }
+            is ShortArray -> value.joinToString(",", "[", "]") {
+                """"$it""""
+            }
+            is IntArray -> value.joinToString(",", "[", "]") {
+                """"$it""""
+            }
+            is LongArray -> value.joinToString(",", "[", "]") {
+                """"$it""""
+            }
+            is FloatArray -> value.joinToString(",", "[", "]") {
+                """"$it""""
+            }
+            is DoubleArray -> value.joinToString(",", "[", "]") {
+                """"$it""""
+            }
+            is CharArray -> value.joinToString(",", "[", "]") {
+                """"$it""""
+            }
+            is BooleanArray -> value.joinToString(",", "[", "]") {
+                """"$it""""
+            }
+            else -> """["$value"]"""
+        }
     }
 
 }
