@@ -17,12 +17,15 @@ object Reflection {
     private val classes: MutableMap<KClass<*>, ClassInfo<*>> = mutableMapOf()
 
     fun getAnnotations(kClass: KClass<*>): List<Annotation> {
-        checkInit()
+        initialized()
         return classes[kClass]?.annotations ?: emptyList()
     }
 
     fun getAnnotations(kFunction: KFunction<*>, kClass: KClass<*>? = null): List<Annotation> {
-        checkInit()
+        if (initialized().not()) {
+            console.warn("Reflection data has not been set")
+            return emptyList()
+        }
         val identifier = getIdentifier(kFunction)
         return if (kClass == null) {
             if (identifier.isMethod()) {
@@ -55,8 +58,6 @@ object Reflection {
                 .orEmpty()
     }
 
-    private fun checkInit() {
-        if (init.not()) throw RuntimeException("Reflection data has not been set")
-    }
+    private fun initialized() = init
 
 }

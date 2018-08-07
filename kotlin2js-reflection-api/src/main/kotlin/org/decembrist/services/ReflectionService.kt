@@ -14,7 +14,7 @@ internal object ReflectionService {
     var isCacheEnabled = true
 
     private val classCache = mutableMapOf<String, JsClassReflect<*>>()
-    private val methodsCache = mutableMapOf<KClass<*>, List<JsMethodReflect>>()
+    private val methodsCache = mutableMapOf<KClass<*>, List<JsMethodReflect<*>>>()
 
     fun jsReflectOf(kFunction: KFunction<*>): JsFunctionReflect {
         val getAnnotations = kFunction.asDynamic()[REFLECTION_INFO].getAnnotations
@@ -53,7 +53,7 @@ internal object ReflectionService {
             override val annotations: List<Annotation>
                 get() = getAnnotations()
 
-            override val methods: List<JsMethodReflect>
+            override val methods: List<JsMethodReflect<T>>
                 get() = getMethods(kClass)
         }.apply {
             classCache[jsName] = this
@@ -62,18 +62,24 @@ internal object ReflectionService {
 
     fun clearClassCache() = classCache.clear()
 
-    private fun getMethods(kClass: KClass<*>): List<JsMethodReflect> {
+    private fun <T: Any> getMethods(kClass: KClass<T>): List<JsMethodReflect<T>> {
         val methodList = methodsCache[kClass] ?: Reflection.getMethods(kClass)
                 .map {
-                    object : JsMethodReflect {
+                    object : JsMethodReflect<T> {
                         override val annotations: List<Annotation>
                             get() = it.annotations
                         override val name: String
                             get() = it.method.name
+                        override fun invoke(receiver: T, vararg args: Any): Any {
+                            val currentArgs = arrayOf(receiver, *args)
+                            return it.method.function.asDynamic()
+                                    .apply(null, currentArgs)
+                                    .unsafeCast<Any>()
+                        }
                     }
                 }
         methodsCache[kClass] = methodList
-        return methodList
+        return methodList as List<JsMethodReflect<T>>
     }
 
 }

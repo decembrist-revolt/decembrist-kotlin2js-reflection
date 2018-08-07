@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.util.*
+import javax.script.ScriptEngineManager
 import kotlin.reflect.KClass
 
 class ReflectionUtilsGeneratorIntegrationTest : TestCommon() {
@@ -23,11 +24,13 @@ class ReflectionUtilsGeneratorIntegrationTest : TestCommon() {
     val KT_FILE2 = "KtFile2.kt"
     val KT_FILE3 = "KtFile3.kt"
     val KT_FILE4 = "KtFile4.kt"
+    val KT_FILE5 = "KtFile5.kt"
 
     val ktFile1 = getResourceFile(generatePath(KT_FILE1))
     val ktFile2 = getResourceFile(generatePath(KT_FILE2))
     val ktFile3 = getResourceFile(generatePath(KT_FILE3))
     val ktFile4 = getResourceFile(generatePath(KT_FILE4))
+    val ktFile5 = getResourceFile(generatePath(KT_FILE5))
 
     @Test
     fun hiderOrderedFunctionGenerationTest() {
@@ -78,15 +81,19 @@ class ReflectionUtilsGeneratorIntegrationTest : TestCommon() {
         assertEquals(Unit::class.qualifiedName, returnType.clazz)
         assertEquals("test", function.name)
         val annotations = functions.first().annotations
-        assertEquals(1, annotations.size)
-        val annotation = annotations.first()
-        assertEquals("Annotation1", fixScriptClassName(annotation.name))
-        val params = annotation.params
+        assertEquals(3, annotations.size)
+        val annotation1 = annotations.component1()
+        assertEquals("ZeroParamsAnnotation", fixScriptClassName(annotation1.name))
+        val annotation2 = annotations.component2()
+        assertEquals("Annotation1", fixScriptClassName(annotation2.name))
+        val params = annotation2.params
         assertEquals(1, params.size)
         val param = params.first()
         assertEquals("name", param.name)
         assertEquals(String::class.qualifiedName, param.type)
         assertEquals("test1", param.value.first())
+        val annotation3 = annotations.component3()
+        assertEquals("ZeroParamsBracesAnnotation", fixScriptClassName(annotation3.name))
     }
 
     @Test
@@ -347,6 +354,60 @@ class ReflectionUtilsGeneratorIntegrationTest : TestCommon() {
         assertEquals("false", boolParam.value.component2())
     }
 
+    @Test
+    fun classMethodsGenerationTest() {
+        val folder = object : OkFolder() {
+            override fun listFiles() = arrayOf(ktFile5)
+        }
+        val sourceParser = SourceParser(Collections.singletonList(folder))
+        val fileContents = sourceParser.parse()
+        val generated = ReflectionUtilsGenerator().generateCode(fileContents)
+        assertEquals(1, generated.size)
+        val fileText = generated.first().toString()
+        val ktFileLines = ktFile5.readLines()
+        val script = Script(fileText, ktFileLines)
+        val json = script.eval().toString()
+        val reflectionData = map(json, ReflectionData::class)
+        val classes = reflectionData.classes
+        assertEquals(1, classes.size)
+        val clazz = classes.component1()
+        assertEquals("B", fixScriptClassName(clazz.name))
+        val methods = clazz.methods
+        assertEquals(1, methods.size)
+        val method = methods.component1()
+        assertEquals("method", method.function.name)
+        val function = FunctionUtils.parseFunction(method.function.body)
+        assertEquals("B.method", function.name)
+        assertEquals(0, function.paramTypes.size)
+        assertEquals(Unit::class.qualifiedName, function.returnType.clazz)
+        val annotations1 = method.annotations
+        assertEquals(1, annotations1.size)
+        val annotation = annotations1.component1()
+        assertEquals("MethodAnnotation", fixScriptClassName(annotation.name))
+        val params1 = annotation.params
+        assertEquals(1, params1.size)
+        val param1 = params1.component1()
+        assertEquals("string", param1.name)
+        assertEquals(String::class.qualifiedName, param1.type)
+        val values1 = param1.value
+        assertEquals(1, values1.size)
+        val value1 = values1.component1()
+        assertEquals("test2", value1)
+        val annotations2 = clazz.annotations
+        assertEquals(1, annotations2.size)
+        val annotation2 = annotations2.component1()
+        assertEquals("ClassAnnotation", fixScriptClassName(annotation2.name))
+        val params2 = annotation2.params
+        assertEquals(1, params2.size)
+        val param2 = params2.component1()
+        assertEquals("string", param2.name)
+        assertEquals(String::class.qualifiedName, param2.type)
+        val values2 = param2.value
+        assertEquals(1, values2.size)
+        val value2 = values2.component1()
+        assertEquals("test1", value2)
+    }
+
     private fun <T : Any> map(json: String, clazz: KClass<T>): T {
         val mapper = jacksonObjectMapper()
         return mapper.readValue(json, clazz.java)
@@ -373,9 +434,11 @@ class ReflectionUtilsGeneratorIntegrationTest : TestCommon() {
 
         fun fixScriptClassName(name: String) = name.split(".").component2()
 
-        open class ReflectionData(val functions: Array<FunctionBlock>)
+        open class ReflectionData(val functions: Array<FunctionBlock>, val classes: Array<ClassBlock>)
 
         open class FunctionBlock(val function: FunctionIdentifier, val annotations: Array<Annotation>)
+
+        open class ClassBlock(val name: String, val methods: Array<FunctionBlock>, val annotations: Array<Annotation>)
 
         open class FunctionIdentifier(val name: String, val body: String)
 

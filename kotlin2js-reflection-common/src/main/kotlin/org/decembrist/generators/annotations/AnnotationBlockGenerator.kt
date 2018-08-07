@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.CodeBlock
 import org.decembrist.domain.Attribute
 import org.decembrist.domain.content.IAnnotated
 import org.decembrist.generators.IGenerator
+import org.decembrist.generators.addImport
 import org.decembrist.generators.nextLine
 
 object AnnotationBlockGenerator: IGenerator<IAnnotated> {
@@ -29,6 +30,9 @@ object AnnotationBlockGenerator: IGenerator<IAnnotated> {
                         .add("%T::class.jsReflect.createInstance(", annotationType)
                         .add(attributesBlock)
                         .add(")")
+                if (annotationType.packageName() == "") {
+                    annotationsBlock.addImport(annotationType.canonicalName)
+                }
                 needComma = true
             }
             annotationsBlock

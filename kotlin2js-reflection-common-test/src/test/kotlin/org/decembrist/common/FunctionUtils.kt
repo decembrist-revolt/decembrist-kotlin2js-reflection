@@ -1,17 +1,13 @@
 package org.decembrist.common
 
 import java.util.Collections.singletonList
-import kotlin.reflect.KClass
-import kotlin.reflect.KMutableProperty
-import kotlin.reflect.KProperty
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
-import kotlin.reflect.jvm.javaGetter
 
 object FunctionUtils {
 
     fun parseFunction(function: String): Function {
-        val name = function.substringBefore("(").split(".").component2()
+        val name = function
+                .substringBefore("(")
+                .substringAfter(".")
         val paramsSubstring = function.substring(
                 function.indexOfFirst { it == '(' } + 1,
                 function.indexOfLast { it == ')' }
@@ -39,8 +35,10 @@ object FunctionUtils {
             }
         }
         return if (commaIndexes.isEmpty()) {
-            val type = parseType(params)
-            singletonList(type)
+            if (params.isNotEmpty()) {
+                val type = parseType(params)
+                singletonList(type)
+            } else emptyList()
         } else {
             var startIndex = 0
             var endIndex: Int

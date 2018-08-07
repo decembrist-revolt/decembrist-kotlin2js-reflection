@@ -8,13 +8,13 @@ import org.decembrist.domain.content.annotations.AnnotationParameter
 import org.decembrist.domain.content.classes.Class
 import org.decembrist.domain.headers.annotations.AnnotationInstance
 import org.decembrist.fillers.exceptions.AnnotationNotFoundException
+import org.decembrist.fillers.exceptions.PrivateAnnotationException
 import org.decembrist.services.AnnotationService.hasUnknownAttributesInfo
 import org.decembrist.services.AnnotationService.isAttributeWithUnknownName
 import org.decembrist.services.AnnotationService.isAttributeWithUnknownType
 import org.decembrist.services.ReplaceTypeService.replaceUnknownType
 import org.decembrist.services.cache.CacheService
 import org.decembrist.services.logging.LoggerService
-import org.decembrist.services.typesuggestions.TypeConstants
 import org.decembrist.services.typesuggestions.TypeConstants.Companion.isArray
 import org.decembrist.services.typesuggestions.TypeSuggestion
 import org.decembrist.services.typesuggestions.TypeSuggestion.Unknown
@@ -57,14 +57,16 @@ open class AnnotationInfoFiller private constructor(
         val filledAnnotationsList = entity.annotations.map { annotation ->
             return@map try {
                 var annotationItem: CacheService.AnnotationInstanceItem? = null
-                val filledAttributes = if (hasUnknownAttributesInfo(annotation)) {
+                val shouldFill = hasUnknownAttributesInfo(annotation)
+                        || annotation.type is Unknown
+                val filledAttributes = if (shouldFill) {
                     val annotationType = annotation.type
                     annotationItem = getAnnotationItemByType(annotationType, packageName)
                     annotationItem = if (annotationItem == null && annotationType is Unknown) {
                         findInEmbeddings(annotationType)
                     } else annotationItem
                     if (annotationItem == null) {
-                        throw AnnotationNotFoundException(annotationType.toString())
+                        throw AnnotationNotFoundException(annotationType.type)
                     }
                     fillAttributes(annotation.attributes, annotationItem, packageName)
                 } else annotation.attributes
@@ -74,7 +76,7 @@ open class AnnotationInfoFiller private constructor(
                 newAnnotation.apply {
                     attributes = filledAttributes
                 }
-            } catch (ex: AnnotationNotFoundException) {
+            } catch (ex: RuntimeException) {
                 LoggerService.warn(ex.message!!)
                 null
             }
@@ -117,15 +119,32 @@ open class AnnotationInfoFiller private constructor(
      */
     private fun getAnnotationItemByType(type: TypeSuggestion,
                                         packageName: String): CacheService.AnnotationInstanceItem? {
-        return CacheService.getAnnotationCache().firstOrNull { annotationItem ->
-            return@firstOrNull if (annotationItem.annotationName == type.type) {
-                if (type is TypeSuggestion.Type) {
-                    annotationItem.packageName == type.packageName
-                } else {
-                    annotationItem.packageName == packageName
+        val annotationItem = CacheService.getAnnotationCache()
+                .firstOrNull { annotationItem ->
+                    return@firstOrNull getAnnotationItemByType(annotationItem, type, packageName)
                 }
-            } else false
+        if (annotationItem == null) {
+            val isPrivateAnnotation = CacheService.getPrivateAnnotations()
+                    .any { privateAnnotationItem ->
+                        getAnnotationItemByType(privateAnnotationItem, type, packageName)
+                    }
+            if (isPrivateAnnotation) {
+                throw PrivateAnnotationException(type.type)
+            }
         }
+        return annotationItem
+    }
+
+    private fun getAnnotationItemByType(annotationItem: CacheService.AnnotationInstanceItem,
+                                        type: TypeSuggestion,
+                                        packageName: String): Boolean {
+        return if (annotationItem.annotationName == type.type) {
+            if (type is TypeSuggestion.Type) {
+                annotationItem.packageName == type.packageName
+            } else {
+                annotationItem.packageName == packageName
+            }
+        } else false
     }
 
     /**

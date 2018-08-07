@@ -27,7 +27,11 @@ internal object Message {
 
     fun quotesOnBlank(value: String) = if (value.isBlank()) "\"\"" else value
 
-    fun nainClassNotFoundMessage(mainClass: String) = "$mainClass not found in classpath"
+    fun mainClassNotFoundMessage(mainClass: String) = "$mainClass not found in classpath"
+
+    fun entityIsPrivate(entityName: String) = "$entityName is private and won't be processed"
+
+    fun classIsPrivate(entityName: String) = "Class $entityName is private and won't be processed"
 
     private class WrongAnnotatedType(val ctx: RuleContext, val fileName: String) {
 

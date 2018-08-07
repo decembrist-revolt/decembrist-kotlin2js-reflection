@@ -104,9 +104,27 @@ object Reflection {
                 |   "annotations": $annotations
                 |}""".trimMargin()
         }.joinToString(",", "[", "]")
+        val classes = this.classes.map { clazz ->
+            val methods = clazz.methods.joinToString(",", "[", "]") { method ->
+                val annotations = method.annotations
+                        .joinToString(",", "[", "]", transform = ::parseAnnotation)
+                return@joinToString """{
+                    |   "function": ${method.method},
+                    |   "annotations": $annotations
+                    |}""".trimMargin()
+            }
+            val annotations = clazz.annotations
+                    .joinToString(",", "[", "]", transform = ::parseAnnotation)
+            return@map """{
+                |   "name": "${clazz.clazz.qualifiedName}",
+                |   "methods": $methods,
+                |   "annotations": $annotations
+                |}""".trimMargin()
+        }.joinToString(",", "[", "]")
         return """
             {
-                "functions": $functions
+                "functions": $functions,
+                "classes": $classes
             }
         """.trimIndent()
     }

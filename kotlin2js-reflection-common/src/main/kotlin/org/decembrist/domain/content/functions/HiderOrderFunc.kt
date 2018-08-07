@@ -2,12 +2,14 @@ package org.decembrist.domain.content.functions
 
 import org.decembrist.domain.modifiers.FunctionModifiers
 import org.decembrist.services.typesuggestions.TypeSuggestion
+import kotlin.reflect.KVisibility
 
 class HiderOrderFunc(name: String,
                      functionModifiers: FunctionModifiers,
                      functionParameters: List<FunctionParameter>,
-                     returnType: TypeSuggestion)
-    : AbstractFunction(name, functionModifiers, functionParameters, returnType) {
+                     returnType: TypeSuggestion,
+                     visibility: KVisibility)
+    : AbstractFunction(name, functionModifiers, functionParameters, returnType, visibility) {
 
     constructor(name: String,
                 isAbstract: Boolean,
@@ -19,7 +21,8 @@ class HiderOrderFunc(name: String,
                 isOperator: Boolean,
                 isSuspend: Boolean,
                 functionParameters: List<FunctionParameter>,
-                returnType: TypeSuggestion)
+                returnType: TypeSuggestion,
+                visibility: KVisibility)
             : this(name, FunctionModifiers(
             isAbstract,
             isFinal,
@@ -30,7 +33,8 @@ class HiderOrderFunc(name: String,
             isOperator,
             isSuspend),
             functionParameters,
-            returnType
+            returnType,
+            visibility
     )
 
 }

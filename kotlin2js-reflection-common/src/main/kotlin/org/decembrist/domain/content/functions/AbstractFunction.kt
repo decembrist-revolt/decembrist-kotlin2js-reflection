@@ -3,11 +3,13 @@ package org.decembrist.domain.content.functions
 import org.decembrist.domain.headers.annotations.AnnotationInstance
 import org.decembrist.domain.modifiers.FunctionModifiers
 import org.decembrist.services.typesuggestions.TypeSuggestion
+import kotlin.reflect.KVisibility
 
 abstract class AbstractFunction(override val name: String,
                                 override val functionModifiers: FunctionModifiers,
                                 override var functionParameters: List<FunctionParameter>,
-                                override var returnType: TypeSuggestion) : IFuncContent {
+                                override var returnType: TypeSuggestion,
+                                override val visibility: KVisibility) : IFuncContent {
 
     constructor(name: String,
                 isAbstract: Boolean,
@@ -19,7 +21,8 @@ abstract class AbstractFunction(override val name: String,
                 isOperator: Boolean,
                 isSuspend: Boolean,
                 functionParameters: List<FunctionParameter>,
-                returnType: TypeSuggestion)
+                returnType: TypeSuggestion,
+                visibility: KVisibility)
             : this(name, FunctionModifiers(
             isAbstract,
             isFinal,
@@ -30,7 +33,8 @@ abstract class AbstractFunction(override val name: String,
             isOperator,
             isSuspend),
             functionParameters,
-            returnType
+            returnType,
+            visibility
     )
 
     override var annotations: Set<AnnotationInstance> = emptySet()

@@ -9,8 +9,8 @@ class KtFileContent(val name: String) : IContent {
 
     var imports: ImportsContent? = null
 
-    var classes: List<AbstractClass> = mutableListOf()
+    var classes: List<AbstractClass> = emptyList()
 
-    var functions: Set<IFuncContent> = mutableSetOf()
+    var functions: Set<IFuncContent> = emptySet()
 
 }

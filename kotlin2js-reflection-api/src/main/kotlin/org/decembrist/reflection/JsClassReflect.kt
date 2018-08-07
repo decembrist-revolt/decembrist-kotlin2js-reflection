@@ -12,7 +12,7 @@ interface JsClassReflect<T>: IAnnotated {
      */
     val jsConstructor: dynamic
 
-    val methods: List<JsMethodReflect>
+    val methods: List<JsMethodReflect<T>>
 
     fun createInstance(arguments: Array<Any> = js("[]")): T
 

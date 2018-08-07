@@ -12,6 +12,7 @@ import org.decembrist.services.TypeService.getTypeSuggestion
 import org.decembrist.services.typecontexts.VarargsType
 import org.decembrist.services.typesuggestions.StarType
 import org.decembrist.services.typesuggestions.TypeSuggestion
+import kotlin.reflect.KVisibility
 
 object RuleContextService {
 
@@ -76,7 +77,7 @@ object RuleContextService {
                 ?.functionValueParameter()
                 .orEmpty()
         return if (functionValueParameters.isNotEmpty()) {
-            functionValueParameters.map {parameter ->
+            functionValueParameters.map { parameter ->
                 val parameterCtx = parameter.parameter()
                 return@map retrieveParameter(parameterCtx, imports)
             }
@@ -113,6 +114,21 @@ object RuleContextService {
             .parent
             .let { it as ClassDeclarationContext }
             .let { getClassName(it) }
+
+    fun getVisibility(modifiers: ModifierListContext?): KVisibility {
+        return modifiers
+                ?.modifier()
+                ?.mapNotNull { it.visibilityModifier() }
+                ?.firstOrNull()
+                ?.let { modifier ->
+                    return@let when {
+                        modifier.INTERNAL() != null -> KVisibility.INTERNAL
+                        modifier.PRIVATE() != null -> KVisibility.PRIVATE
+                        modifier.PROTECTED() != null -> KVisibility.PROTECTED
+                        else -> KVisibility.PUBLIC
+                    }
+                } ?: KVisibility.PUBLIC
+    }
 
     /**
      * TODO default value

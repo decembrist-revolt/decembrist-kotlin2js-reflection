@@ -4,12 +4,19 @@ import org.decembrist.domain.content.functions.AbstractFunction
 import org.decembrist.domain.content.functions.FunctionParameter
 import org.decembrist.domain.modifiers.FunctionModifiers
 import org.decembrist.services.typesuggestions.TypeSuggestion
+import kotlin.reflect.KVisibility
 
 class Method(name: String,
              functionModifiers: FunctionModifiers,
              functionParameters: List<FunctionParameter>,
-             returnType: TypeSuggestion)
-    : AbstractFunction(name, functionModifiers, functionParameters, returnType), IMember {
+             returnType: TypeSuggestion,
+             visibility: KVisibility)
+    : AbstractFunction(
+        name,
+        functionModifiers,
+        functionParameters,
+        returnType,
+        visibility), IMember {
 
     constructor(name: String,
                 isAbstract: Boolean,
@@ -21,7 +28,8 @@ class Method(name: String,
                 isOperator: Boolean,
                 isSuspend: Boolean,
                 functionParameters: List<FunctionParameter>,
-                returnType: TypeSuggestion)
+                returnType: TypeSuggestion,
+                visibility: KVisibility)
             : this(name, FunctionModifiers(
             isAbstract,
             isFinal,
@@ -32,7 +40,8 @@ class Method(name: String,
             isOperator,
             isSuspend),
             functionParameters,
-            returnType
+            returnType,
+            visibility
     )
 
 }

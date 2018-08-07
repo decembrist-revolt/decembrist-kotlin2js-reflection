@@ -1,7 +1,9 @@
 package org.decembrist.reflection
 
-interface JsMethodReflect: IAnnotated {
+interface JsMethodReflect<T>: IAnnotated {
 
     val name: String
+
+    operator fun invoke(receiver: T, vararg args: Any): Any
 
 }

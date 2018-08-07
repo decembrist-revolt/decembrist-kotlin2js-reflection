@@ -5,10 +5,13 @@ import org.decembrist.domain.Import
 object ImportService {
 
     fun retrieveFullClass(imports: Collection<Import>, className: String): String {
-        val import = imports
+        return findConnectedImport(imports, className) ?: className
+    }
+
+    fun findConnectedImport(imports: Collection<Import>, className: String): String? {
+        return imports
                 .map(Import::className)
                 .firstOrNull { it.substringAfterLast(".") == className }
-        return import ?: className
     }
 
     fun retrievePackageName(imports: Collection<Import>, className: String): String? {

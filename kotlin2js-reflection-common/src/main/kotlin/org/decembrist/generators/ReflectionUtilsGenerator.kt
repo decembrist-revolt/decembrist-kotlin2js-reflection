@@ -1,7 +1,6 @@
 package org.decembrist.generators
 
 import com.squareup.kotlinpoet.*
-import org.decembrist.Message.nainClassNotFoundMessage
 import org.decembrist.domain.content.KtFileContent
 import org.decembrist.domain.content.functions.HiderOrderFunc
 import org.decembrist.generators.annotations.ClassGenerator

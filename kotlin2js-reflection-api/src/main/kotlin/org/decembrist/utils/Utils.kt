@@ -29,13 +29,15 @@ fun Reflection.clearClassCache() = ReflectionService.clearClassCache()
 
 fun getIdentifier(kFunction: KFunction<*>) = FunctionIdentifier(
         kFunction.name,
-        kFunction.toString()
+        kFunction.toString(),
+        kFunction
 )
 
 fun <T: KFunction<*>> getIdentifierBySupplier(kFunction: T): FunctionIdentifier {
     return FunctionIdentifier(
             kFunction.name,
-            kFunction.toString()
+            kFunction.toString(),
+            kFunction
     )
 }
 

@@ -26,6 +26,17 @@ object TypeService {
         }
     }
 
+    fun getTypeSuggestion(className: String,
+                          packageName: String,
+                          nullable: Boolean = false): TypeSuggestion {
+        val clazz = className.substringAfterLast(".")
+        return if (packageName == className) {
+            Unknown(clazz, nullable = nullable)
+        } else {
+            Type(clazz, packageName, nullable = nullable)
+        }
+    }
+
     fun getTypeSuggestion(ctx: TypeContext, imports: Collection<Import>): TypeSuggestion {
         val typeReferenceContext =
             ctx.typeReference() ?: ctx.nullableType()?.typeReference()

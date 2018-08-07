@@ -5,6 +5,7 @@ import org.decembrist.domain.Import
 import org.decembrist.domain.content.annotations.AnnotationClass
 import org.decembrist.services.RuleContextService.getClassModifiers
 import org.decembrist.services.RuleContextService.getClassName
+import org.decembrist.services.RuleContextService.getVisibility
 import org.decembrist.services.RuleContextService.retrieveParameters
 
 class AnnotationClassContextResolver(private val imports: Collection<Import>)
@@ -15,7 +16,8 @@ class AnnotationClassContextResolver(private val imports: Collection<Import>)
         val classModifiers = getClassModifiers(ctx)
         val primaryConstructor = ctx.payload
                 ?.let { it as ClassDeclarationContext }?.primaryConstructor()
-        return AnnotationClass(className, classModifiers).apply {
+        val visibility = getVisibility(ctx.modifierList())
+        return AnnotationClass(className, classModifiers, visibility).apply {
             parameters += retrieveParameters(primaryConstructor, imports)
         }
     }

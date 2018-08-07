@@ -6,6 +6,7 @@ import org.decembrist.domain.content.annotations.AnnotationClass
 import org.decembrist.domain.content.annotations.AnnotationParameter
 import org.decembrist.domain.headers.annotations.AnnotationInstance
 import org.decembrist.services.typesuggestions.TypeSuggestion
+import kotlin.reflect.KVisibility
 
 object AnnotationService {
 
@@ -30,6 +31,7 @@ object AnnotationService {
                     "JsQualifier",
                     listOf(getEmbeddedJsAnnotationParameter("import"))
             )
+    //TODO @Target
     )
 
     private const val UNKNOWN_ATTRIBUTE_NAME = ""
@@ -83,7 +85,8 @@ object AnnotationService {
                 false,
                 false,
                 false,
-                false).apply {
+                false,
+                KVisibility.PUBLIC).apply {
             this.parameters += parameters
         }
     }

@@ -1,9 +1,8 @@
 package org.decembrist.common
 
-import org.decembrist.generators.ReflectionUtilsGeneratorIntegrationTest
-import org.decembrist.parsers.SourceParserIntegrationTest
-import org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmDaemonLocalEvalScriptEngineFactory as KScript
 import java.io.File
+import javax.script.ScriptEngineManager
+//import org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmDaemonLocalEvalScriptEngineFactory as KScript
 
 class Script(val text: String, val other: List<String>) {
 
@@ -47,7 +46,7 @@ class Script(val text: String, val other: List<String>) {
         private const val GENERATOR = "generator"
 
         private val COMMON_KT = "$TEST_FILES${File.separator}$GENERATOR${File.separator}Common.kts"
-        private val scriptEngine = KScript().scriptEngine
+        private val scriptEngine = ScriptEngineManager().getEngineByExtension("kts")
 
     }
 
