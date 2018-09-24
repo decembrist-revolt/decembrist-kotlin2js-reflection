@@ -13,6 +13,7 @@ class Script(val text: String, val other: List<String>) {
         filtered = text.lines()
                 .filter { !it.startsWith("import org.decembrist") }
                 .filter { !it.startsWith("import kotlin.reflect.KClass") }
+                .filter { !(it.startsWith("import") and it.endsWith("//."))}
                 .let { lines ->
                     val result: MutableList<String> = mutableListOf()
                     var index = 0

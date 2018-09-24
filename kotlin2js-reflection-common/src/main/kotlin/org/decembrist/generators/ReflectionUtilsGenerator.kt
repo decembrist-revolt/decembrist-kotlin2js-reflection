@@ -87,12 +87,14 @@ class ReflectionUtilsGenerator {
                 .map { ClassGenerator(packageName).generate(it) }
         val classInfoBlock = CodeBlock.builder()
         for (classBlock in classBlocks) {
-            if (classInfoBlock.isNotEmpty()) {
-                classInfoBlock
-                        .add(",")
-                        .nextLine()
+            if (classBlock.isNotEmpty()) {
+                if (classInfoBlock.isNotEmpty()) {
+                    classInfoBlock
+                            .add(",")
+                            .nextLine()
+                }
+                classInfoBlock.add(classBlock)
             }
-            classInfoBlock.add(classBlock)
         }
         codeBuilder
                 .indent()

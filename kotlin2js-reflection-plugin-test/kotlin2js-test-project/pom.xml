@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.decembrist</groupId>
-    <artifactId>reflection-example</artifactId>
+    <artifactId>kotlin2js-test-project</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -27,17 +29,20 @@
             <artifactId>kotlin-stdlib-js</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-js</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
-
         <plugins>
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <version>${kotlin.version}</version>
-
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -51,7 +56,8 @@
                                 <sourceDir>${build.directory}/generated-sources/decembrist
                                 </sourceDir>
                             </sourceDirs>
-                            <sourceMap>true</sourceMap> <!-- source map is useful for debugging in tools that support source maps -->
+                            <sourceMap>true
+                            </sourceMap> <!-- source map is useful for debugging in tools that support source maps -->
                             <outputFile>${project.build.outputDirectory}/${project.artifactId}.js</outputFile>
                         </configuration>
                     </execution>
@@ -69,7 +75,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- unpack kotlin.js to target/classes/lib for example index.html -->
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -82,9 +88,10 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>kotlin-stdlib-js</includeArtifactIds>
-                            <outputDirectory>${build.outputDirectory}/lib</outputDirectory>
+                            <outputDirectory>${build.outputDirectory}/</outputDirectory>
                             <includes>**\/*.js</includes>
-                            <excludes>**\/*.meta.js</excludes> <!-- we don't need meta.js files in runtime -->
+                            <excludes>**\/*.meta.js
+                            </excludes> <!-- we don't need meta.js files in runtime -->
                         </configuration>
                     </execution>
                     <execution>
@@ -95,7 +102,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>kotlin2js-reflection-api</includeArtifactIds>
-                            <outputDirectory>${build.outputDirectory}/lib</outputDirectory>
+                            <outputDirectory>${build.outputDirectory}/</outputDirectory>
                             <includes>**\/*.js</includes>
                             <excludes>**\/*.meta.js
                             </excludes> <!-- we don't need meta.js files in runtime -->

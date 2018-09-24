@@ -3,6 +3,11 @@ package org.decembrist
 import org.decembrist.utils.jsReflect
 import UnpackagedClass
 import UnpackagedAnnotation
+import org.decembrist.classes.checkClasses
+import org.decembrist.classes.checkKotlinAnnotations
+import org.decembrist.functions.checkHiderOrderFunctionInvoke
+import kotlin.browser.document
+import kotlin.browser.window
 
 private annotation class PrivateAnnotation
 
@@ -39,7 +44,13 @@ annotation class MethodAnnotation
 fun main(args: Array<String>) {
     checkHiderOrderedFunctionAnnotation()
     checkUnpackagedClassAnnotation()
-    console.log("OK! Assertions count: $assertionsCount")
+    checkKotlinAnnotations()
+    checkClasses()
+    checkHiderOrderFunctionInvoke()
+    window.onload = {
+        document.body!!.innerHTML = "OK! Assertions count: $assertionsCount"
+        ""
+    }
 }
 
 fun checkHiderOrderedFunctionAnnotation() {
@@ -90,7 +101,7 @@ fun checkUnpackagedClassAnnotation() {
 var assertionsCount = 0
 
 fun assertTrue(expr: Boolean) {
-    console.asDynamic().assert(expr)
+    if (!expr) throw AssertionError()
     assertionsCount++
 }
 

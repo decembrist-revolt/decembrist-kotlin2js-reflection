@@ -40,6 +40,7 @@
                             <goal>js</goal>
                         </goals>
                         <configuration>
+                            <moduleKind>umd</moduleKind>
                             <sourceMapEmbedSources>always</sourceMapEmbedSources>
                             <sourceMap>true
                             </sourceMap> <!-- source map is useful for debugging in tools that support source maps -->

@@ -10,25 +10,25 @@ import kotlin.reflect.KVisibility
 
 object AnnotationService {
 
-    val embededJsAnnotations = setOf(
+    val embeddedJsAnnotations = setOf(
             getEmbeddedJsAnnotationClass(
-                    "JsName",
+                    "kotlin.js.JsName",
                     listOf(getEmbeddedJsAnnotationParameter("name"))
             ),
             getEmbeddedJsAnnotationClass(
-                    "native",
+                    "kotlin.js.native",
                     listOf(getEmbeddedJsAnnotationParameter("name", ""))
             ),
-            getEmbeddedJsAnnotationClass("nativeGetter"),
-            getEmbeddedJsAnnotationClass("nativeSetter"),
-            getEmbeddedJsAnnotationClass("nativeInvoke"),
+            getEmbeddedJsAnnotationClass("kotlin.js.nativeGetter"),
+            getEmbeddedJsAnnotationClass("kotlin.js.nativeSetter"),
+            getEmbeddedJsAnnotationClass("kotlin.js.nativeInvoke"),
             getEmbeddedJsAnnotationClass(
-                    "JsModule",
+                    "kotlin.js.JsModule",
                     listOf(getEmbeddedJsAnnotationParameter("import"))
             ),
-            getEmbeddedJsAnnotationClass("JsNonModule"),
+            getEmbeddedJsAnnotationClass("kotlin.js.JsNonModule"),
             getEmbeddedJsAnnotationClass(
-                    "JsQualifier",
+                    "kotlin.js.JsQualifier",
                     listOf(getEmbeddedJsAnnotationParameter("import"))
             )
     //TODO @Target

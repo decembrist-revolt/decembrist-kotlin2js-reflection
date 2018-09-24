@@ -1,7 +1,6 @@
 package org.decembrist.services.cache
 
 import org.decembrist.Message
-import org.decembrist.domain.content.IVisibilityModified
 import org.decembrist.domain.content.KtFileContent
 import org.decembrist.domain.content.annotations.AnnotationClass
 import org.decembrist.domain.content.annotations.AnnotationParameter
@@ -70,8 +69,21 @@ object CacheService {
     }
 
     private fun cacheEmbeddedJsAnnotations() {
-        embeddedJsAnnotationCache = AnnotationService.embededJsAnnotations
-                .map { CacheService.AnnotationInstanceItem(it.name, "", it.parameters) }
+        embeddedJsAnnotationCache = AnnotationService.embeddedJsAnnotations
+                .map { annotationClass ->
+                    val (name, packageName) = if (annotationClass.name.contains(".")) {
+                        val name = annotationClass.name.substringAfterLast(".")
+                        val packageName = annotationClass.name.substringBeforeLast(".")
+                        name to packageName
+                    } else {
+                        annotationClass.name to ""
+                    }
+                    return@map CacheService.AnnotationInstanceItem(
+                            name,
+                            packageName,
+                            annotationClass.parameters
+                    )
+                }
     }
 
     class ClassItem(val className: String,

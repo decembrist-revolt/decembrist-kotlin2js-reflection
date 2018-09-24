@@ -20,6 +20,7 @@ object AnnotationBlockGenerator: IGenerator<IAnnotated> {
                     .nextLine()
                     .indent()
             var needComma = false
+            val imports = mutableSetOf<String>()
             for (annotation in content.annotations) {
                 if (needComma) annotationsBlock
                         .add(",")
@@ -31,10 +32,15 @@ object AnnotationBlockGenerator: IGenerator<IAnnotated> {
                         .add(attributesBlock)
                         .add(")")
                 if (annotationType.packageName() == "") {
-                    annotationsBlock.addImport(annotationType.canonicalName)
+                    imports.add(annotationType.canonicalName)
                 }
                 needComma = true
             }
+            annotationsBlock.add("/*")
+            for (import in imports) {
+                annotationsBlock.addImport(import)
+            }
+            annotationsBlock.add("*/")
             annotationsBlock
                     .nextLine()
                     .unindent()

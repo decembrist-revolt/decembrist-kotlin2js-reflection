@@ -1,0 +1,76 @@
+buildscript {
+
+    repositories {
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath "org.decembrist:kotlin2js-reflection-gplugin:0.1.0-SNAPSHOT"
+    }
+
+}
+
+plugins {
+    id 'java'
+    id 'kotlin2js' version '1.2.51'
+}
+
+apply plugin: "org.decembrist.kotlin2js.reflection"
+
+group 'org.decembrist'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+sourceSets {
+
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile "org.decembrist:kotlin2js-reflection-api:1.0-SNAPSHOT"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js"
+}
+
+kotlin2JsReflection {
+    checkKotlin2JsPluginExistence = false
+    executeBefore = "compileKotlin2Js"
+    generatedSourcesDir = file("${project.buildDir}/generated/source1/decembrist")
+}
+
+sourceSets.main.kotlin.srcDirs += kotlin2JsReflection.generatedSourcesDir
+
+task assembleWeb(type: Sync) {
+    configurations.compile.each { File file ->
+        from(zipTree(file.absolutePath), {
+            includeEmptyDirs = false
+            include { fileTreeElement ->
+                def path = fileTreeElement.path
+                path.endsWith(".js") && (path.startsWith("META-INF/resources/") ||
+                        !path.startsWith("META-INF/"))
+            }
+        })
+    }
+    from compileKotlin2Js.destinationDir
+    into "${buildDir}/"
+
+    dependsOn classes
+}
+
+task copyResources(type: Copy) {
+
+    from(sourceSets.main.resources)
+    into "${buildDir}/"
+
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.6'
+}
+
+assemble.dependsOn assembleWeb
+assemble.dependsOn copyResources
