@@ -2,7 +2,7 @@ language: java
 jdk:
 - oraclejdk8
 script:
-- ./gradlew wrapper
+- ./gradlew
 - ./gradlew runAllTest
 install:
 - wget http://apache-mirror.rbc.ru/pub/apache/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.zip || travis_terminate 1;
@@ -10,3 +10,7 @@ install:
   export MAVEN_HOME=$PWD/apache-maven-3.5.4;
   export PATH=$MAVEN_HOME/bin:$PATH;
   mvn -version;
+- wget https://gradle.org/next-steps/?version=4.10.2&format=bin || travis_terminate 1;
+  mkdir /opt/gradle
+  unzip -d /opt/gradle gradle-4.10.2-bin.zip
+  export PATH=$PATH:/opt/gradle/gradle-4.10.2/bin
