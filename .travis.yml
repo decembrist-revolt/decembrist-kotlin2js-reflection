@@ -2,6 +2,7 @@ language: java
 jdk:
 - oraclejdk8
 script:
+- ./gradlew wrapper
 - ./gradlew runAllTest
 install:
 - wget http://apache-mirror.rbc.ru/pub/apache/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.zip || travis_terminate 1;
