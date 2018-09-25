@@ -57,5 +57,7 @@ buildNumber.properties
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
 !/.mvn/wrapper/maven-wrapper.jar
 
+# Avoid ignoring Gradle wrapper jar file
+!/gradle/wrapper/gradle-wrapper.jar
 
 # End of https://www.gitignore.io/api/java,maven,kotlin
