@@ -5,7 +5,7 @@ script:
 - gradlew runAllTest
 install:
 - wget http://apache-mirror.rbc.ru/pub/apache/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.zip || travis_terminate 1;
-  unzip -qq apache-maven-3.5.3-bin.zip || travis_terminate 1;
-  export MAVEN_HOME=$PWD/apache-maven-3.5.3;
+  unzip -qq apache-maven-3.5.4-bin.zip || travis_terminate 1;
+  export MAVEN_HOME=$PWD/apache-maven-3.5.4;
   export PATH=$MAVEN_HOME/bin:$PATH;
   mvn -version;
