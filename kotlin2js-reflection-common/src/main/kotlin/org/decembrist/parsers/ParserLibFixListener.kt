@@ -1,8 +1,8 @@
 package org.decembrist.parsers
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser
-import com.github.sarahbuisson.kotlinparser.KotlinParser.ClassDeclarationContext
-import com.github.sarahbuisson.kotlinparser.KotlinParserBaseListener
+import org.decembrist.parser.KotlinParser
+import org.decembrist.parser.KotlinParser.ClassDeclarationContext
+import org.decembrist.parser.KotlinParserBaseListener
 import org.antlr.v4.runtime.tree.ErrorNodeImpl
 
 open class ParserLibFixListener : KotlinParserBaseListener() {

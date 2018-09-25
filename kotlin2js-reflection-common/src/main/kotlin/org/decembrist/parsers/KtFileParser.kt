@@ -1,7 +1,7 @@
 package org.decembrist.parsers
 
-import com.github.sarahbuisson.kotlinparser.KotlinLexer
-import com.github.sarahbuisson.kotlinparser.KotlinParser
+import org.decembrist.parser.KotlinLexer
+import org.decembrist.parser.KotlinParser
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTreeWalker

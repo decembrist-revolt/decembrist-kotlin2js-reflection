@@ -1,7 +1,7 @@
 package org.decembrist.resolvers
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser
-import com.github.sarahbuisson.kotlinparser.KotlinParser.AnnotationContext
+import org.decembrist.parser.KotlinParser
+import org.decembrist.parser.KotlinParser.AnnotationContext
 import org.decembrist.domain.Import
 import org.decembrist.domain.headers.annotations.AnnotationInstance
 import org.decembrist.services.AnnotationService.retrieveAttribute

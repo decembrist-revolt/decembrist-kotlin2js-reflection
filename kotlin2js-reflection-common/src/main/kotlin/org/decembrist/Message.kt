@@ -1,6 +1,6 @@
 package org.decembrist
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser.FunctionDeclarationContext
+import org.decembrist.parser.KotlinParser.FunctionDeclarationContext
 import org.antlr.v4.runtime.RuleContext
 import java.io.File
 

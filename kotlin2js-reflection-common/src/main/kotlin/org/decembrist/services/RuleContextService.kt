@@ -1,6 +1,6 @@
 package org.decembrist.services
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser.*
+import org.decembrist.parser.KotlinParser.*
 import org.decembrist.domain.Import
 import org.decembrist.domain.content.annotations.AnnotationParameter
 import org.decembrist.domain.content.functions.FunctionParameter

@@ -12,6 +12,10 @@ def getMvn() {
     return "mvn${ending}"
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.6'
+}
+
 task installReflectionCommon(type: Exec) {
     def mavenExecutable = getMvn()
     workingDir "kotlin2js-reflection-common"
@@ -19,18 +23,42 @@ task installReflectionCommon(type: Exec) {
     args "install"
 }
 
-task installReflectionCommonTest(type: Exec) {
+task testReflectionCommon(type: Exec) {
     def mavenExecutable = getMvn()
     workingDir "kotlin2js-reflection-common-test"
     executable mavenExecutable
     args "test"
 }
 
-task runAllTestWithoutInstall {}
+task installReflectionMavenPlugin(type: Exec) {
+    def mavenExecutable = getMvn()
+    workingDir "kotlin2js-reflection-mplugin"
+    executable mavenExecutable
+    args "install"
+}
+
+task installReflectionApi(type: Exec) {
+    def mavenExecutable = getMvn()
+    workingDir "kotlin2js-reflection-api"
+    executable mavenExecutable
+    args "install"
+}
+
+task installReflectionPluginApiTest(type: Exec) {
+    def mavenExecutable = getMvn()
+    workingDir "kotlin2js-reflection-plugin-test"
+    executable mavenExecutable
+    args "test"
+}
 
 task runAllTest {}
 
-runAllTestWithoutInstall.finalizedBy(installReflectionCommonTest)
+project(':kotlin2js-reflection-gplugin').afterEvaluate {
+    project(':kotlin2js-reflection-gplugin').tasks.getByName('assemble').dependsOn(installReflectionCommon)
+}
 
-runAllTest.finalizedBy(installReflectionCommon)
-runAllTest.finalizedBy(installReflectionCommonTest)
+runAllTest.finalizedBy(installReflectionMavenPlugin)
+runAllTest.dependsOn ':kotlin2js-reflection-gplugin:build'
+runAllTest.dependsOn ':kotlin2js-reflection-gplugin:publishToMavenLocal'
+runAllTest.finalizedBy(installReflectionApi)
+runAllTest.finalizedBy(installReflectionPluginApiTest)

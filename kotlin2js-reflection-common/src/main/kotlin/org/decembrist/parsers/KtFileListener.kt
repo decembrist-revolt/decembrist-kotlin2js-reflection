@@ -1,6 +1,6 @@
 package org.decembrist.parsers
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser.*
+import org.decembrist.parser.KotlinParser.*
 import org.antlr.v4.runtime.RuleContext
 import org.decembrist.domain.content.KtFileContent
 import org.decembrist.domain.content.classes.Class

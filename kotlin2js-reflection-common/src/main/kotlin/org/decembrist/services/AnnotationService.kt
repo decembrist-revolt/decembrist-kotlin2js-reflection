@@ -1,6 +1,6 @@
 package org.decembrist.services
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser.ValueArgumentContext
+import org.decembrist.parser.KotlinParser.ValueArgumentContext
 import org.decembrist.domain.Attribute
 import org.decembrist.domain.content.annotations.AnnotationClass
 import org.decembrist.domain.content.annotations.AnnotationParameter

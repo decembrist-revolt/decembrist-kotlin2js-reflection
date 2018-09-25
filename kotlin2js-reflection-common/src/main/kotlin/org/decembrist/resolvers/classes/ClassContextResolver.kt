@@ -1,6 +1,6 @@
 package org.decembrist.resolvers.classes
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser.ClassDeclarationContext
+import org.decembrist.parser.KotlinParser.ClassDeclarationContext
 import org.decembrist.domain.content.classes.Class
 import org.decembrist.services.RuleContextService.getClassModifiers
 import org.decembrist.services.RuleContextService.getClassName

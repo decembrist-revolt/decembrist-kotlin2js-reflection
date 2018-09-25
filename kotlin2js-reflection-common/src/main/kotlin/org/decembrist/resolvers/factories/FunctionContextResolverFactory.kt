@@ -1,6 +1,6 @@
 package org.decembrist.resolvers.factories
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser.FunctionDeclarationContext
+import org.decembrist.parser.KotlinParser.FunctionDeclarationContext
 import org.decembrist.domain.Import
 import org.decembrist.domain.content.functions.IFuncContent
 import org.decembrist.resolvers.functions.AbstractFunctionContextResolver

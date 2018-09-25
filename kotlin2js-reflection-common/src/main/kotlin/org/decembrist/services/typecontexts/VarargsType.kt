@@ -1,7 +1,7 @@
 package org.decembrist.services.typecontexts
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser
-import com.github.sarahbuisson.kotlinparser.KotlinParser.TypeContext
+import org.decembrist.parser.KotlinParser
+import org.decembrist.parser.KotlinParser.TypeContext
 
 class VarargsType(val ctx: TypeContext) {
 

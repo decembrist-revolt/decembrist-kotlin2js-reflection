@@ -1,8 +1,8 @@
 package org.decembrist.resolvers
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser
-import com.github.sarahbuisson.kotlinparser.KotlinParser.ImportHeaderContext
-import com.github.sarahbuisson.kotlinparser.KotlinParser.ImportListContext
+import org.decembrist.parser.KotlinParser
+import org.decembrist.parser.KotlinParser.ImportHeaderContext
+import org.decembrist.parser.KotlinParser.ImportListContext
 import org.decembrist.domain.Import
 import org.decembrist.domain.content.ImportsContent
 

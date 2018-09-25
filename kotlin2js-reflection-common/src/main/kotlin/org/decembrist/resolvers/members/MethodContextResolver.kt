@@ -1,6 +1,6 @@
 package org.decembrist.resolvers.members
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser.ClassMemberDeclarationContext
+import org.decembrist.parser.KotlinParser.ClassMemberDeclarationContext
 import org.decembrist.domain.Import
 import org.decembrist.domain.content.members.Method
 import org.decembrist.services.RuleContextService.getAnnotations

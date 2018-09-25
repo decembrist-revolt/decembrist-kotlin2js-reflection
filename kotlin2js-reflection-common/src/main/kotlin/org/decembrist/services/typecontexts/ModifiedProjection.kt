@@ -1,8 +1,8 @@
 package org.decembrist.services.typecontexts
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser
-import com.github.sarahbuisson.kotlinparser.KotlinParser.TypeProjectionContext
-import com.github.sarahbuisson.kotlinparser.KotlinParser.TypeReferenceContext
+import org.decembrist.parser.KotlinParser
+import org.decembrist.parser.KotlinParser.TypeProjectionContext
+import org.decembrist.parser.KotlinParser.TypeReferenceContext
 import org.antlr.v4.runtime.ParserRuleContext
 
 class ModifiedProjection(val projection: TypeProjectionContext,

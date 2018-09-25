@@ -1,6 +1,6 @@
 package org.decembrist.resolvers
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser.PackageHeaderContext
+import org.decembrist.parser.KotlinParser.PackageHeaderContext
 import org.decembrist.domain.content.Package
 
 class PackageContextResolver : IContextResolver<PackageHeaderContext, Package> {

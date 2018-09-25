@@ -8,4 +8,5 @@ pluginManagement {
     }
 }
 rootProject.name = 'decembrist-kotlin2js-reflection'
+include 'kotlin2js-reflection-gplugin'
 

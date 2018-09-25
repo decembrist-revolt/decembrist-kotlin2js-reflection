@@ -1,6 +1,6 @@
 package org.decembrist.resolvers.functions
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser.FunctionDeclarationContext
+import org.decembrist.parser.KotlinParser.FunctionDeclarationContext
 import org.decembrist.domain.Import
 import org.decembrist.domain.content.functions.HiderOrderFunc
 import org.decembrist.services.RuleContextService.getFunctionModifiers

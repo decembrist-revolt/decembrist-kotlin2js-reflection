@@ -23,14 +23,14 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4</artifactId>
+            <version>4.7.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.squareup</groupId>
             <artifactId>kotlinpoet</artifactId>
             <version>0.7.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.decembrist</groupId>
-            <artifactId>kotlin-parser</artifactId>
-            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -70,6 +70,27 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>4.7.1</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceDirectory>src/main/resources/parser</sourceDirectory>
+                    <outputDirectory>${project.build.directory}/generated-sources/antlr4/org/decembrist/parser</outputDirectory>
+                    <arguments>
+                        <argument>-package</argument>
+                        <argument>org.decembrist.parser</argument>
+                    </arguments>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

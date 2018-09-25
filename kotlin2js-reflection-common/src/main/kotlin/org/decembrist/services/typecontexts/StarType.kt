@@ -1,6 +1,6 @@
 package org.decembrist.services.typecontexts
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser
+import org.decembrist.parser.KotlinParser
 import org.antlr.v4.runtime.ParserRuleContext
 
 class StarType(typeContext: ParserRuleContext) : CustomType(typeContext) {

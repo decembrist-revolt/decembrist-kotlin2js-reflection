@@ -1,6 +1,6 @@
 package org.decembrist.resolvers.factories
 
-import com.github.sarahbuisson.kotlinparser.KotlinParser.ClassDeclarationContext
+import org.decembrist.parser.KotlinParser.ClassDeclarationContext
 import org.decembrist.domain.Import
 import org.decembrist.domain.content.classes.AbstractClass
 import org.decembrist.resolvers.classes.AbstractClassContextResolver
