@@ -152,38 +152,10 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>gradlew</executable>
+                            <executable>${gradlew}</executable>
                             <workingDirectory>${kotlin2js.test.project}</workingDirectory>
                             <arguments>
                                 <argument>build</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>clean-test-project-maven</id>
-                        <phase>clean</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>mvn</executable>
-                            <workingDirectory>${kotlin2js.test.project}</workingDirectory>
-                            <arguments>
-                                <argument>clean</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>clean-test-project-gradle</id>
-                        <phase>clean</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>gradlew</executable>
-                            <workingDirectory>${kotlin2js.test.project}</workingDirectory>
-                            <arguments>
-                                <argument>clean</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -191,6 +163,32 @@
 
             </plugin>
         </plugins>
+
     </build>
+
+    <profiles>
+        <profile>
+            <id>Windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <gradlew>gradlew</gradlew>
+            </properties>
+        </profile>
+        <profile>
+            <id>unix</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <gradlew>./gradlew</gradlew>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
