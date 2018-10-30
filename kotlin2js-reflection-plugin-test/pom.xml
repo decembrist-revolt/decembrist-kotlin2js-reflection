@@ -154,9 +154,9 @@
                         <configuration>
                             <executable>${gradlew}</executable>
                             <workingDirectory>${kotlin2js.test.project}</workingDirectory>
-                            <arguments>
-                                <argument>build</argument>
-                            </arguments>
+                            <!--<arguments>-->
+                                <!--<argument>build</argument>-->
+                            <!--</arguments>-->
                         </configuration>
                     </execution>
                 </executions>
@@ -186,7 +186,7 @@
                 </os>
             </activation>
             <properties>
-                <gradlew>./gradlew</gradlew>
+                <gradlew>./gradle_build</gradlew>
             </properties>
         </profile>
     </profiles>
