@@ -21,7 +21,8 @@
         <junit.jupiter.version>5.1.0</junit.jupiter.version>
         <junit.platform.version>1.0.3</junit.platform.version>
         <logback.classic>1.2.1</logback.classic>
-        <kotlin2js.test.project>${build.testOutputDirectory}/kotlin2js-test-project</kotlin2js.test.project>
+        <kotlin2js.test.project>${build.testOutputDirectory}/kotlin2js-test-project
+        </kotlin2js.test.project>
     </properties>
 
     <repositories>
@@ -155,7 +156,7 @@
                             <executable>${gradlew}</executable>
                             <workingDirectory>${kotlin2js.test.project}</workingDirectory>
                             <!--<arguments>-->
-                                <!--<argument>build</argument>-->
+                            <!--<argument>build</argument>-->
                             <!--</arguments>-->
                         </configuration>
                     </execution>
@@ -186,8 +187,34 @@
                 </os>
             </activation>
             <properties>
-                <gradlew>./gradle_build</gradlew>
+                <gradlew>./gradlew</gradlew>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>compile-test-project-gradle</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>chmod</executable>
+                                    <workingDirectory>${kotlin2js.test.project}</workingDirectory>
+                                    <arguments>
+                                        <argument>u+x</argument>
+                                        <argument>gradlew</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
