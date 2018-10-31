@@ -9,3 +9,7 @@ install:
   export MAVEN_HOME=$PWD/apache-maven-3.5.4;
   export PATH=$MAVEN_HOME/bin:$PATH;
   mvn -version;
+cache:
+  directories:
+  - .autoconf
+  - $HOME/.m2
