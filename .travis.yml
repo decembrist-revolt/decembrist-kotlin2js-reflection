@@ -9,5 +9,5 @@ install:
   export MAVEN_HOME=$PWD/apache-maven-3.5.4;
   export PATH=$MAVEN_HOME/bin:$PATH;
   echo "BUSY PORTS";
-  netstat -antu;
+  ss -ln src :8080;
   mvn -version;
