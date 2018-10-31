@@ -11,6 +11,8 @@ class PluginTest {
 
     private lateinit var server: Server
 
+    private val port = 8000
+
     @AfterEach
     fun tearDown() {
         server.stop()
@@ -18,15 +20,15 @@ class PluginTest {
 
     @Test
     fun mavenTest() {
-        server = Server(mavenStaticPath).start()
-        val assertString = Browser().browse()
+        server = Server(mavenStaticPath, port).start()
+        val assertString = Browser(port).browse()
         assertEquals("OK! Assertions count: 28", assertString)
     }
 
     @Test
     fun gradleTest() {
-        server = Server(gradleStaticPath).start()
-        val assertString = Browser().browse()
+        server = Server(gradleStaticPath, port).start()
+        val assertString = Browser(port).browse()
         assertEquals("OK! Assertions count: 28", assertString)
     }
 
