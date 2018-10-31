@@ -16,7 +16,7 @@ class Server(private val staticPath: String, private val port: Int) {
     private lateinit var server: NettyApplicationEngine
 
     fun start(): Server {
-        server = embeddedServer(Netty, port) {
+        server = embeddedServer(Netty, port, "127.0.0.1") {
             routing {
                 static {
                     staticRootFolder = File(staticPath)
