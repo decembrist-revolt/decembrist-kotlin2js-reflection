@@ -10,7 +10,7 @@ class Browser {
      */
     fun browse(): String {
         val webClient = WebClient()
-        val page: HtmlPage = webClient.getPage("http://localhost:8080/")
+        val page: HtmlPage = webClient.getPage("http://0.0.0.0:8080/")
         return page.body.asText()
     }
 
