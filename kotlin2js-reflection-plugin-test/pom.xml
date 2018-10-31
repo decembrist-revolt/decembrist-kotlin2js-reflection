@@ -197,8 +197,8 @@
                         <version>1.6.0</version>
                         <executions>
                             <execution>
-                                <id>compile-test-project-gradle</id>
-                                <phase>process-test-classes</phase>
+                                <id>change-gradle-executable-rights</id>
+                                <phase>test-compile</phase>
                                 <goals>
                                     <goal>exec</goal>
                                 </goals>
