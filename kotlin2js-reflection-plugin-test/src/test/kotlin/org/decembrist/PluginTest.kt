@@ -21,7 +21,7 @@ class PluginTest {
     @Test
     fun mavenTest() {
         server = Server(mavenStaticPath, port).start()
-        println("Maven test: static path: $mavenStaticPath")
+        printStaticContent(mavenStaticPath, "Maven")
         val assertString = Browser(port).browse()
         assertEquals("OK! Assertions count: 28", assertString)
     }
@@ -29,9 +29,15 @@ class PluginTest {
     @Test
     fun gradleTest() {
         server = Server(gradleStaticPath, port).start()
-        println("Maven test: static path: $gradleStaticPath")
+        printStaticContent(gradleStaticPath, "Gradle")
         val assertString = Browser(port).browse()
         assertEquals("OK! Assertions count: 28", assertString)
+    }
+
+    private fun printStaticContent(path: String, system: String) {
+        val staticDirectory = File(path)
+        val filesList = staticDirectory.listFiles().joinToString(transform = File::getName)
+        println("$system test: static path: $path, files: $filesList")
     }
 
     companion object {
