@@ -21,6 +21,7 @@ class PluginTest {
     @Test
     fun mavenTest() {
         server = Server(mavenStaticPath, port).start()
+        println("Maven test: static path: $mavenStaticPath")
         val assertString = Browser(port).browse()
         assertEquals("OK! Assertions count: 28", assertString)
     }
@@ -28,6 +29,7 @@ class PluginTest {
     @Test
     fun gradleTest() {
         server = Server(gradleStaticPath, port).start()
+        println("Maven test: static path: $gradleStaticPath")
         val assertString = Browser(port).browse()
         assertEquals("OK! Assertions count: 28", assertString)
     }
