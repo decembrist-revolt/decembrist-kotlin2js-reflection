@@ -18,14 +18,14 @@ task wrapper(type: Wrapper) {
 
 task installReflectionCommon(type: Exec) {
     def mavenExecutable = getMvn()
-    workingDir "kotlin2js-reflection-common"
+    workingDir "kotlin2js-reflection-core"
     executable mavenExecutable
     args "install"
 }
 
 task testReflectionCommon(type: Exec) {
     def mavenExecutable = getMvn()
-    workingDir "kotlin2js-reflection-common-test"
+    workingDir "kotlin2js-reflection-core-test"
     executable mavenExecutable
     args "test"
 }

@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.decembrist</groupId>
-    <artifactId>kotlin2js-reflection-common</artifactId>
+    <artifactId>kotlin2js-reflection-core</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>kotlin2js-reflection-common</name>
+    <name>kotlin2js-reflection-core</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
