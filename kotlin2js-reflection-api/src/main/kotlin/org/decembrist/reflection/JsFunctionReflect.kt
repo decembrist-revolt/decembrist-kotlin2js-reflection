@@ -7,6 +7,9 @@ import kotlin.reflect.KClass
  */
 interface JsFunctionReflect: IAnnotated {
 
+    /**
+     * Return function js name
+     */
     val jsName: String
 
     /**
