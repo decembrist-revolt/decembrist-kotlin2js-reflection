@@ -23,6 +23,8 @@
         <logback.classic>1.2.1</logback.classic>
         <kotlin2js.test.project>${build.testOutputDirectory}/kotlin2js-test-project
         </kotlin2js.test.project>
+        <kotlin2js.published.test.project>${build.testOutputDirectory}/published-test
+        </kotlin2js.published.test.project>
     </properties>
 
     <repositories>
@@ -124,6 +126,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <KOTLIN2JS_TEST_PROJECT>${kotlin2js.test.project}</KOTLIN2JS_TEST_PROJECT>
+                        <KOTLIN2JS_PUBLISHED_TEST_PROJECT>${kotlin2js.published.test.project}</KOTLIN2JS_PUBLISHED_TEST_PROJECT>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -157,6 +160,36 @@
                             <workingDirectory>${kotlin2js.test.project}</workingDirectory>
                             <arguments>
                                 <argument>build</argument>
+                                <argument>--no-daemon</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>compile-publish-test-project-maven</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>mvn</executable>
+                            <workingDirectory>${kotlin2js.published.test.project}</workingDirectory>
+                            <arguments>
+                                <argument>package</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>compile-publish-test-project-gradle</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${gradlew}</executable>
+                            <workingDirectory>${kotlin2js.published.test.project}</workingDirectory>
+                            <arguments>
+                                <argument>build</argument>
+                                <argument>--no-daemon</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -205,6 +238,21 @@
                                 <configuration>
                                     <executable>chmod</executable>
                                     <workingDirectory>${kotlin2js.test.project}</workingDirectory>
+                                    <arguments>
+                                        <argument>u+x</argument>
+                                        <argument>gradlew</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>change-publish-gradle-executable-rights</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>chmod</executable>
+                                    <workingDirectory>${kotlin2js.published.test.project}</workingDirectory>
                                     <arguments>
                                         <argument>u+x</argument>
                                         <argument>gradlew</argument>

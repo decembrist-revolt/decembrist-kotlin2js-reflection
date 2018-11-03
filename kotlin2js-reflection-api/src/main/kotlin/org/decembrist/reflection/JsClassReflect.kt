@@ -1,5 +1,8 @@
 package org.decembrist.reflection
 
+/**
+ * Class reflection data
+ */
 interface JsClassReflect<T>: IAnnotated {
 
     /**
@@ -12,8 +15,14 @@ interface JsClassReflect<T>: IAnnotated {
      */
     val jsConstructor: dynamic
 
+    /**
+     * @return class methods reflection data list
+     */
     val methods: List<JsMethodReflect<T>>
 
+    /**
+     * Create a new class instance through js constructor
+     */
     fun createInstance(arguments: Array<Any> = js("[]")): T
 
 }

@@ -1,38 +1,34 @@
 package org.decembrist.utils
 
 import org.decembrist.model.FunctionIdentifier
-import org.decembrist.reflection.Reflection
 import org.decembrist.services.ReflectionService
-import org.decembrist.services.ReflectionService.isCacheEnabled
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 
+/**
+ * Get entity reflection data
+ */
 val <T : Any> KClass<T>.jsReflect
     get() = ReflectionService.jsReflectOf(this)
 
+/**
+ * Get entity reflection data
+ */
 val KFunction<*>.jsReflect
     get() = ReflectionService.jsReflectOf(this)
 
 /**
- * Enable/Disable jsReflect cache
+ * Get function identifier representation
  */
-var Reflection.enableCache
-    get() = isCacheEnabled
-    set(enable) {
-        isCacheEnabled = enable
-    }
-
-/**
- * Clear jsReflect cache
- */
-fun Reflection.clearClassCache() = ReflectionService.clearClassCache()
-
 fun getIdentifier(kFunction: KFunction<*>) = FunctionIdentifier(
         kFunction.name,
         kFunction.toString(),
         kFunction
 )
 
+/**
+ * Get function identifier representation
+ */
 fun <T: KFunction<*>> getIdentifierBySupplier(kFunction: T): FunctionIdentifier {
     return FunctionIdentifier(
             kFunction.name,
@@ -41,6 +37,9 @@ fun <T: KFunction<*>> getIdentifierBySupplier(kFunction: T): FunctionIdentifier 
     )
 }
 
+/**
+ * @return true if function identifier is method identifier
+ */
 fun FunctionIdentifier.isMethod() = body.matches("^function.*\\(\\\$receiver")
 
 internal external object Object {

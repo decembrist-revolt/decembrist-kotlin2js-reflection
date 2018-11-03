@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.decembrist</groupId>
-    <artifactId>kotlin2js-test-project</artifactId>
+    <artifactId>kotlin2js-published-test-project</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>kotlin2js-test-project</name>
+    <name>kotlin2js-published-test-project</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>org.decembrist</groupId>
             <artifactId>kotlin2js-reflection-api</artifactId>
-            <version>0.1.0-beta-2-SNAPSHOT</version>
+            <version>0.1.0-beta-1</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -66,7 +66,7 @@
             <plugin>
                 <groupId>org.decembrist</groupId>
                 <artifactId>kotlin2js-reflection-mplugin</artifactId>
-                <version>0.1.0-beta-2-SNAPSHOT</version>
+                <version>0.1.0-beta-1</version>
                 <executions>
                     <execution>
                         <goals>

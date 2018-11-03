@@ -23,7 +23,7 @@ class PluginTest {
         server = Server(mavenStaticPath, port).start()
         printStaticContent(mavenStaticPath, "Maven")
         val assertString = Browser(port).browse()
-        assertEquals("OK! Assertions count: 28", assertString)
+        assertEquals("OK! Assertions count: 31", assertString)
     }
 
     @Test
@@ -31,7 +31,23 @@ class PluginTest {
         server = Server(gradleStaticPath, port).start()
         printStaticContent(gradleStaticPath, "Gradle")
         val assertString = Browser(port).browse()
-        assertEquals("OK! Assertions count: 28", assertString)
+        assertEquals("OK! Assertions count: 31", assertString)
+    }
+
+    @Test
+    fun mavenPublishedTest() {
+        server = Server(publishedMavenStaticPath, port).start()
+        printStaticContent(mavenStaticPath, "Maven")
+        val assertString = Browser(port).browse()
+        assertEquals("OK! Assertions count: 31", assertString)
+    }
+
+    @Test
+    fun gradlePublishedTest() {
+        server = Server(publishedGradleStaticPath, port).start()
+        printStaticContent(gradleStaticPath, "Gradle")
+        val assertString = Browser(port).browse()
+        assertEquals("OK! Assertions count: 31", assertString)
     }
 
     private fun printStaticContent(path: String, system: String) {
@@ -42,9 +58,13 @@ class PluginTest {
 
     companion object {
         val testProjectPath = System.getProperty("KOTLIN2JS_TEST_PROJECT")
+        val publishedTestProjectPath = System.getProperty("KOTLIN2JS_PUBLISHED_TEST_PROJECT")
         val mavenStaticPath =
                 "$testProjectPath${File.separatorChar}target${File.separatorChar}classes"
         val gradleStaticPath = "$testProjectPath${File.separatorChar}build"
+        val publishedMavenStaticPath =
+                "$testProjectPath${File.separatorChar}target${File.separatorChar}classes"
+        val publishedGradleStaticPath = "$testProjectPath${File.separatorChar}build"
     }
 
 }

@@ -1,5 +1,8 @@
 package org.decembrist.reflection
 
+/**
+ * Method reflection data
+ */
 interface JsMethodReflect<T>: IAnnotated {
 
     val name: String

@@ -8,6 +8,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KFunction
 
+@Deprecated("Don't use it")
 fun main(args: Array<String>) {
     patchGetKClass()
     patchGetCallableRef()

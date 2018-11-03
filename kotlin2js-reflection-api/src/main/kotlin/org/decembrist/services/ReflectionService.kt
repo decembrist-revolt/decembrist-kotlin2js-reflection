@@ -11,11 +11,6 @@ internal object ReflectionService {
 
     const val REFLECTION_INFO = "reflection-info"
 
-    var isCacheEnabled = true
-
-    private val classCache = mutableMapOf<String, JsClassReflect<*>>()
-    private val methodsCache = mutableMapOf<KClass<*>, List<JsMethodReflect<*>>>()
-
     fun jsReflectOf(kFunction: KFunction<*>): JsFunctionReflect {
         val getAnnotations = kFunction.asDynamic()[REFLECTION_INFO].getAnnotations
                 .unsafeCast<(KClass<*>?) -> List<Annotation>>()
@@ -31,15 +26,11 @@ internal object ReflectionService {
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun <T : Any> jsReflectOf(kClass: KClass<T>): JsClassReflect<T> {
         val jsName = kClass.asDynamic()[REFLECTION_INFO].jsName.unsafeCast<String>()
         val getAnnotations = kClass.asDynamic()[REFLECTION_INFO].getAnnotations
                 .unsafeCast<() -> List<Annotation>>()
-        val cachedValue = if (isCacheEnabled) {
-            classCache[jsName]?.let { it as JsClassReflect<T> }
-        } else null
-        return cachedValue ?: object : JsClassReflect<T> {
+        return object : JsClassReflect<T> {
             override val jsName: String
                 get() = jsName
             override val jsConstructor: dynamic
@@ -55,15 +46,11 @@ internal object ReflectionService {
 
             override val methods: List<JsMethodReflect<T>>
                 get() = getMethods(kClass)
-        }.apply {
-            classCache[jsName] = this
         }
     }
 
-    fun clearClassCache() = classCache.clear()
-
     private fun <T: Any> getMethods(kClass: KClass<T>): List<JsMethodReflect<T>> {
-        val methodList = methodsCache[kClass] ?: Reflection.getMethods(kClass)
+        val methodList = Reflection.getMethods(kClass)
                 .map {
                     object : JsMethodReflect<T> {
                         override val annotations: List<Annotation>
@@ -78,8 +65,7 @@ internal object ReflectionService {
                         }
                     }
                 }
-        methodsCache[kClass] = methodList
-        return methodList as List<JsMethodReflect<T>>
+        return methodList.unsafeCast<List<JsMethodReflect<T>>>()
     }
 
 }

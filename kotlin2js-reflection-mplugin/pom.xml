@@ -7,7 +7,7 @@
     <groupId>org.decembrist</groupId>
     <artifactId>kotlin2js-reflection-mplugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0-beta-2-SNAPSHOT</version>
 
     <name>kotlin2js-reflection-mplugin</name>
 
@@ -28,13 +28,39 @@
         </developer>
     </developers>
 
+    <scm>
+        <url>https://github.com/decembrist-revolt/decembrist-kotlin2js-reflection</url>
+    </scm>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jcenter</id>
+            <name>JCenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <properties>
         <kotlin.version>1.2.51</kotlin.version>
         <maven.plugin.api>3.3.9</maven.plugin.api>
-        <maven.plugin.plugin>3.5.1</maven.plugin.plugin>
+        <maven.plugin.plugin.version>3.5.1</maven.plugin.plugin.version>
         <maven.plugin.annotations.version>3.5.1</maven.plugin.annotations.version>
+        <maven.compiler.plugin.version>3.5.1</maven.compiler.plugin.version>
+        <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <kotlin2js.reflection.core.version>0.1.0-beta-2-SNAPSHOT</kotlin2js.reflection.core.version>
+        <dokka.version>0.9.17</dokka.version>
+        <nexus.staging.maven.plugin>1.6.8</nexus.staging.maven.plugin>
+        <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
+        <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
     </properties>
 
     <dependencies>
@@ -51,12 +77,7 @@
         <dependency>
             <groupId>org.decembrist</groupId>
             <artifactId>kotlin2js-reflection-core</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-plugin-api</artifactId>
-            <version>3.2.5</version>
+            <version>${kotlin2js.reflection.core.version}</version>
         </dependency>
     </dependencies>
 
@@ -65,13 +86,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>${maven.plugin.plugin.version}</version>
                 <configuration>
-                    <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
                     <goalPrefix>kotlin2js-reflection</goalPrefix>
                     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                 </configuration>
-
                 <executions>
                     <execution>
                         <id>mojo-descriptor</id>
@@ -84,7 +103,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>${maven.source.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -97,14 +116,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>${maven.compiler.plugin.version}</version>
                 <executions>
-                    <!-- Replacing default-compile as it is treated specially by maven -->
                     <execution>
                         <id>default-compile</id>
                         <phase>none</phase>
                     </execution>
-                    <!-- Replacing default-testCompile as it is treated specially by maven -->
                     <execution>
                         <id>default-testCompile</id>
                         <phase>none</phase>
@@ -112,17 +129,81 @@
                     <execution>
                         <id>java-compile</id>
                         <phase>compile</phase>
-                        <goals> <goal>compile</goal> </goals>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
                     </execution>
                     <execution>
                         <id>java-test-compile</id>
                         <phase>test-compile</phase>
-                        <goals> <goal>testCompile</goal> </goals>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>${nexus.staging.maven.plugin}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven.source.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jetbrains.dokka</groupId>
+                        <artifactId>dokka-maven-plugin</artifactId>
+                        <version>${dokka.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>javadocJar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven.gpg.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

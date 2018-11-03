@@ -16,11 +16,22 @@ object Reflection {
     private val FUNCTION_ANNOTATIONS: HashMap<FunctionIdentifier, List<Annotation>> = HashMap()
     private val classes: MutableMap<KClass<*>, ClassInfo<*>> = mutableMapOf()
 
+    /**
+     * Get annotations for class
+     * @param kClass
+     * @return annotations list
+     */
     fun getAnnotations(kClass: KClass<*>): List<Annotation> {
         initialized()
         return classes[kClass]?.annotations ?: emptyList()
     }
 
+    /**
+     * Get annotations for function or class method (if present)
+     * @param kClass class
+     * @param kFunction function or method
+     * @return annotations list
+     */
     fun getAnnotations(kFunction: KFunction<*>, kClass: KClass<*>? = null): List<Annotation> {
         if (initialized().not()) {
             console.warn("Reflection data has not been set")
@@ -42,6 +53,18 @@ object Reflection {
         } ?: FUNCTION_ANNOTATIONS[identifier] ?: emptyList()
     }
 
+    /**
+     * Get methods for class
+     * @param kClass
+     * @return methods list
+     */
+    fun getMethods(kClass: KClass<*>): List<MethodInfo> {
+        return classes[kClass]
+                ?.methods
+                .orEmpty()
+    }
+
+    @Deprecated("Don't use it")
     fun setData(functionAnnotations: Map<FunctionIdentifier, List<Annotation>>,
                 classes: List<ClassInfo<*>>) {
         init = true
@@ -50,12 +73,6 @@ object Reflection {
                 .map { it.clazz to it }
                 .toMap()
         this.classes.putAndCheck(classesMap)
-    }
-
-    fun getMethods(kClass: KClass<*>): List<MethodInfo> {
-        return classes[kClass]
-                ?.methods
-                .orEmpty()
     }
 
     private fun initialized() = init

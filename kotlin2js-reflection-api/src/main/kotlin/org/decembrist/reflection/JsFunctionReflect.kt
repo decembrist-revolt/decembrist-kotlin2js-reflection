@@ -2,6 +2,9 @@ package org.decembrist.reflection
 
 import kotlin.reflect.KClass
 
+/**
+ * Function reflection data
+ */
 interface JsFunctionReflect: IAnnotated {
 
     val jsName: String

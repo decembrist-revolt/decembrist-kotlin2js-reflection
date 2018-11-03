@@ -2,6 +2,9 @@ package org.decembrist.model
 
 import kotlin.reflect.KFunction
 
+/**
+ * Function identifier representation
+ */
 class FunctionIdentifier(val name: String,
                               val body: String,
                               val function: KFunction<*>) {
