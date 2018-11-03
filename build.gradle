@@ -76,7 +76,7 @@ task installReflectionPluginApiTest(type: Exec) {
     def mavenExecutable = getMvn()
     workingDir "kotlin2js-reflection-plugin-test"
     executable mavenExecutable
-    args "test"
+    args "test", "-X"
 }
 
 task cleanReflectionPluginApiTest(type: Exec) {
