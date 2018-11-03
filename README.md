@@ -116,7 +116,8 @@ pom.xml
 </body>
 </html>
 ```
-use _package_ maven task
+use _package_ maven task   
+
 For _GRADLE_:
 build.gradle
 ```gradle
@@ -187,7 +188,8 @@ rootProject.name = <your project name>
 </body>
 </html>
 ```
-use _build_ gradle task
+use _build_ gradle task   
+
 ### Code example
 ```kotlin
 import org.decembrist.utils.jsReflect
