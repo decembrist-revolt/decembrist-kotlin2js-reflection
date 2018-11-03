@@ -60,5 +60,6 @@ buildNumber.properties
 # Avoid ignoring Gradle wrapper jar file
 !/gradle/wrapper/gradle-wrapper.jar
 !/kotlin2js-reflection-plugin-test/src/test/resources/kotlin2js-test-project/gradle/wrapper/gradle-wrapper.jar
+!/kotlin2js-reflection-plugin-test/src/test/resources/published-test/gradle/wrapper/gradle-wrapper.jar
 
 # End of https://www.gitignore.io/api/java,maven,kotlin
