@@ -1,11 +1,13 @@
 package org.decembrist.services
 
-import org.decembrist.parser.KotlinParser.*
+import org.antlr.v4.runtime.RuleContext
 import org.decembrist.domain.Import
 import org.decembrist.domain.content.annotations.AnnotationParameter
 import org.decembrist.domain.content.functions.FunctionParameter
 import org.decembrist.domain.modifiers.ClassModifiers
 import org.decembrist.domain.modifiers.FunctionModifiers
+import org.decembrist.parser.KotlinParser
+import org.decembrist.parser.KotlinParser.*
 import org.decembrist.resolvers.AnnotationInstanceContextResolver
 import org.decembrist.services.Modifier.*
 import org.decembrist.services.TypeService.getTypeSuggestion
@@ -17,42 +19,46 @@ import kotlin.reflect.KVisibility
 object RuleContextService {
 
     fun getAnnotations(ctx: FunctionDeclarationContext,
-                       imports: Collection<Import>) = ctx.modifierList()
-            ?.annotations()
+                       imports: Collection<Import>) = ctx.modifiers()
+            ?.annotation()
             .orEmpty()
-            .map { it.annotation() }
             .let { AnnotationInstanceContextResolver.fromList(it, imports) }
 
     fun getAnnotations(ctx: ClassDeclarationContext,
-                       imports: Collection<Import>) = ctx.modifierList()
-            ?.annotations()
-            .orEmpty()
-            .map { it.annotation() }
-            .let { AnnotationInstanceContextResolver.fromList(it, imports) }
+                       imports: Collection<Import>) = ctx.modifiers()
+        ?.annotation()
+        .orEmpty()
+        .let { AnnotationInstanceContextResolver.fromList(it, imports) }
+
+    fun getAnnotations(ctx: ObjectDeclarationContext,
+                       imports: Collection<Import>) = ctx.modifiers()
+        ?.annotation()
+        .orEmpty()
+        .let { AnnotationInstanceContextResolver.fromList(it, imports) }
 
     fun modifierExists(modifiers: MutableList<ModifierContext>?,
                        modifier: Modifier): Boolean {
         return modifiers?.any { it.text == modifier.modifierName } == true
     }
 
-    fun getClassModifiers(ctx: ClassDeclarationContext): ClassModifiers {
-        val modifiers = ctx.modifierList()?.modifier()
-        val (isAbstract, isFinal, isOpen) = getEntityModifiers(modifiers)
-        val isData = modifierExists(modifiers, DATA_MODIFIER)
-        val isInner = modifierExists(modifiers, INNER_MODIFIER)
-        val isSealed = modifierExists(modifiers, SEALED_MODIFIER)
+    fun getModifiers(modifiers: KotlinParser.ModifiersContext?): ClassModifiers {
+        val modifier = modifiers?.modifier()
+        val (isAbstract, isFinal, isOpen) = getEntityModifiers(modifier)
+        val isData = modifierExists(modifier, DATA_MODIFIER)
+        val isInner = modifierExists(modifier, INNER_MODIFIER)
+        val isSealed = modifierExists(modifier, SEALED_MODIFIER)
         return ClassModifiers(
-                isAbstract,
-                isFinal,
-                isOpen,
-                isData,
-                isInner,
-                isSealed
+            isAbstract,
+            isFinal,
+            isOpen,
+            isData,
+            isInner,
+            isSealed
         )
     }
 
     fun getFunctionModifiers(ctx: FunctionDeclarationContext): FunctionModifiers {
-        val modifiers = ctx.modifierList()?.modifier()
+        val modifiers = ctx.modifiers()?.modifier()
         val (isAbstract, isFinal, isOpen) = getEntityModifiers(modifiers)
         val isExternal = modifierExists(modifiers, EXTERNAL_MODIFIER)
         val isInfix = modifierExists(modifiers, INNER_MODIFIER)
@@ -109,13 +115,21 @@ object RuleContextService {
     }
 
     fun getClassName(ctx: ClassDeclarationContext) = ctx.simpleIdentifier().text
+    fun getClassName(ctx: ObjectDeclarationContext) = ctx.simpleIdentifier().text
 
-    fun getMemberOwnerClassName(ctx: ClassMemberDeclarationContext) = ctx.parent
-            .parent
-            .let { it as ClassDeclarationContext }
-            .let { getClassName(it) }
+    fun getMemberOwnerClassName(ctx: ClassMemberDeclarationContext): String {
+        tailrec fun findClassOrObjectDeclarationContextName(ctx: RuleContext): String = when(ctx) {
+            is ClassDeclarationContext -> getClassName(ctx)
+            is ObjectDeclarationContext -> getClassName(ctx)
+                else -> {
+                    val parent = ctx.parent ?: throw RuntimeException("missing class declaration $ctx")
+                    findClassOrObjectDeclarationContextName(parent)
+                }
+        }
+        return findClassOrObjectDeclarationContextName(ctx)
+    }
 
-    fun getVisibility(modifiers: ModifierListContext?): KVisibility {
+    fun getVisibility(modifiers: ModifiersContext?): KVisibility {
         return modifiers
                 ?.modifier()
                 ?.mapNotNull { it.visibilityModifier() }
@@ -173,14 +187,14 @@ object RuleContextService {
 
     private fun checkVarargs(ctx: ParameterContext): Boolean {
         return (ctx.parent as FunctionValueParameterContext)
-                .modifierList()
+                .modifiers()
                 ?.modifier()
                 .orEmpty()
                 .any { it?.parameterModifier()?.VARARG() != null }
     }
 
     private fun checkVarargs(ctx: ClassParameterContext): Boolean {
-        return ctx.modifierList()
+        return ctx.modifiers()
                 ?.modifier()
                 .orEmpty()
                 .any { it?.parameterModifier()?.VARARG() != null }

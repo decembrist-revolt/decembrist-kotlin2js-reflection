@@ -23,9 +23,8 @@ buildscript {
     }
 }
 
-group = 'org.decembrist'
-
 subprojects { subProject ->
+    group = 'org.decembrist'
     repositories {
         mavenCentral()
         maven {

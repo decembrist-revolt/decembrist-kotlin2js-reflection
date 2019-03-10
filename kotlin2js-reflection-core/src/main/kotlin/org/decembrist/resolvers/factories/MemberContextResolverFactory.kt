@@ -1,8 +1,8 @@
 package org.decembrist.resolvers.factories
 
-import org.decembrist.parser.KotlinParser.ClassMemberDeclarationContext
 import org.decembrist.domain.Import
 import org.decembrist.domain.content.members.IMember
+import org.decembrist.parser.KotlinParser.ClassMemberDeclarationContext
 import org.decembrist.resolvers.members.AbstractMemberContextResolver
 import org.decembrist.resolvers.members.MethodContextResolver
 
@@ -12,8 +12,8 @@ class MemberContextResolverFactory private constructor(private val imports: Coll
     override fun getResolver(
             ctx: ClassMemberDeclarationContext): AbstractMemberContextResolver<out IMember> {
         return when {
-            ctx.functionDeclaration() != null
-                    && ctx.functionDeclaration().identifier() != null -> MethodContextResolver(imports)
+            ctx.declaration()?.functionDeclaration()?.simpleIdentifier() != null ->
+                MethodContextResolver(imports)
             else -> throw UnsupportedOperationException()
         }
     }

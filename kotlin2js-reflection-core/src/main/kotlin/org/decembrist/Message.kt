@@ -1,7 +1,7 @@
 package org.decembrist
 
-import org.decembrist.parser.KotlinParser.FunctionDeclarationContext
 import org.antlr.v4.runtime.RuleContext
+import org.decembrist.parser.KotlinParser.FunctionDeclarationContext
 import java.io.File
 
 internal object Message {
@@ -38,15 +38,15 @@ internal object Message {
         override fun toString(): String {
             val annotatedEntity = when (ctx) {
                 is FunctionDeclarationContext -> ctx.text
-                        .removePrefix(ctx.modifierList().text)
+                        .removePrefix(ctx.modifiers().text)
                         .removePrefix("fun")
                         .replace(lineSeparator, "")
                 else -> ctx.text
             }
             val annotations = when (ctx) {
-                is FunctionDeclarationContext -> ctx.modifierList()
-                        .annotations()
-                        .joinToString { it.annotation().text }
+                is FunctionDeclarationContext -> ctx.modifiers()
+                        .annotation()
+                        .joinToString { it.singleAnnotation().text }
                 else -> ""
             }
             return """|

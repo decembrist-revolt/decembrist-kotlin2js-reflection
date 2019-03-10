@@ -1,14 +1,15 @@
 package org.decembrist.parsers
 
-import org.decembrist.parser.KotlinParser.*
 import org.antlr.v4.runtime.RuleContext
 import org.decembrist.domain.content.KtFileContent
 import org.decembrist.domain.content.classes.Class
+import org.decembrist.parser.KotlinParser.*
 import org.decembrist.resolvers.ImportContextResolver
 import org.decembrist.resolvers.PackageContextResolver
 import org.decembrist.resolvers.factories.ClassContextResolverFactory
 import org.decembrist.resolvers.factories.FunctionContextResolverFactory
 import org.decembrist.resolvers.factories.MemberContextResolverFactory
+import org.decembrist.resolvers.factories.ObjectContextResolverFactory
 import org.decembrist.services.ExceptionService.throwUnsupportedAnnotatedTypeException
 import org.decembrist.services.RuleContextService.getAnnotations
 import org.decembrist.services.RuleContextService.getMemberOwnerClassName
@@ -63,8 +64,24 @@ class KtFileListener(private val fileName: String) : ParserLibFixListener() {
         if (classValidation(ctx)) {
             val annotations = getAnnotations(ctx, imports)
             val resolver = ClassContextResolverFactory
-                    .createInstance(imports)
-                    .getResolver(ctx)
+                .createInstance(imports)
+                .getResolver(ctx)
+            val `class` = resolver.resolve(ctx).apply {
+                this.annotations += annotations
+            }
+            fileContent.classes += `class`
+        }
+    }
+
+    /**
+     * Retrieves function info and annotations
+     */
+    override fun enterObjectDeclaration(ctx: ObjectDeclarationContext) {
+        if (classValidation(ctx)) {
+            val annotations = getAnnotations(ctx, imports)
+            val resolver = ObjectContextResolverFactory
+                .createInstance(imports)
+                .getResolver(ctx)
             val `class` = resolver.resolve(ctx).apply {
                 this.annotations += annotations
             }
