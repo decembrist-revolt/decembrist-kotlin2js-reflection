@@ -1,0 +1,49 @@
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            if (project.hasProperty('localrepo')) {
+                repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
+            } else {
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                }
+            }
+
+            pom.project {
+                name = mavenName
+                packaging = project.hasProperty('mavenPackage') ? mavenPackage : 'jar'
+                description mavenDescription
+                url 'https://www.github.com/decembrist-revolt/decembrist-kotlin2js-reflection'
+
+                scm {
+                    connection 'scm:git:git@github.com:decembrist-revolt/decembrist-kotlin2js-reflection.git'
+                    developerConnection 'scm:git:git@github.com:decembrist-revolt/decembrist-kotlin2js-reflection.git'
+                    url 'https://www.github.com/decembrist-revolt/decembrist-kotlin2js-reflection/'
+                }
+
+                licenses {
+                    license {
+                        name 'Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0'
+                    }
+                }
+
+                developers {
+                    developer {
+                        name 'Nikita Pometun'
+                        email 'decembrist.org@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
+

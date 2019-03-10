@@ -5,6 +5,7 @@ import org.decembrist.domain.content.functions.AbstractFunction
 import org.decembrist.domain.content.members.Method
 import org.decembrist.generators.IGenerator
 import org.decembrist.services.typesuggestions.TypeSuggestion
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 abstract class AbstractFunctionTypeGenerator<T: AbstractFunction>: IGenerator<T> {
 
@@ -15,7 +16,7 @@ abstract class AbstractFunctionTypeGenerator<T: AbstractFunction>: IGenerator<T>
                 "$KFUNCTION_TYPE_NAME$paramsCount"
         )
         val typeNames = getTypeNames(content)
-        val functionTypeName = ParameterizedTypeName.get(kFunctionType, *typeNames)
+        val functionTypeName = kFunctionType.parameterizedBy(*typeNames)
         return CodeBlock.of("%T", functionTypeName)
     }
 

@@ -12,6 +12,10 @@
 
 parser grammar KotlinParser;
 
+@header {
+    package org.decembrist.parser;
+}
+
 options { tokenVocab = KotlinLexer; }
 
 kotlinFile
