@@ -5,7 +5,7 @@ Plugin for kotlin js annotation processing
 
 The plugin allows you to not be disappointed when you see the message "Unsupported [This reflection API is not supported yet in JavaScript]"
 
-Plugin for the moment can process hider-ordered functions, classes and methods annotations.
+Plugin for the moment can process higher-ordered functions, classes and methods annotations.
 ### License
 Apache 2.0
 ### Installation
