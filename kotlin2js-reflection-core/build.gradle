@@ -1,0 +1,43 @@
+plugins {
+    id 'antlr'
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
+}
+
+ext {
+    mavenName = 'kotlin2js-reflection-core'
+    mavenDescription = 'Core library for kotlin2js reflection'
+}
+
+apply from: "${gradles}/jvm-module.gradle"
+apply from: "${gradles}/upload-archives.gradle"
+//apply from: "${gradles}/additional-archives.gradle"
+
+dependencies {
+    compile "com.squareup:kotlinpoet:${kotlinpoet_version}"
+    antlr "org.antlr:antlr4:${antlr_version}"
+    compile "org.antlr:antlr4-runtime:${antlr_version}"
+}
+
+generateGrammarSource {
+    outputDirectory = file("$buildDir/generated-src/antlr/main/org/decembrist/parser")
+}
+
+shadowJar {
+    relocate 'org.antlr.v4', 'shadowed.antlr.v4'
+    classifier = null
+    dependencies {
+        include(dependency("org.antlr:antlr4-runtime:${antlr_version}"))
+    }
+}
+
+artifacts {
+    archives shadowJar
+}
+
+dokka {
+    enabled = false
+    packageOptions {
+        prefix = "org.decembrist.parser"
+        suppress = true
+    }
+}

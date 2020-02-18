@@ -1,9 +1,9 @@
 package org.decembrist.services.typecontexts
 
+import org.antlr.v4.runtime.ParserRuleContext
 import org.decembrist.parser.KotlinParser
 import org.decembrist.parser.KotlinParser.TypeProjectionContext
 import org.decembrist.parser.KotlinParser.TypeReferenceContext
-import org.antlr.v4.runtime.ParserRuleContext
 
 class ModifiedProjection(val projection: TypeProjectionContext,
                          typeContext: ParserRuleContext): CustomType(typeContext) {
@@ -27,8 +27,9 @@ class ModifiedProjection(val projection: TypeProjectionContext,
 
     init {
         val varianceAnnotations = projection
-                .typeProjectionModifierList()
-                .varianceAnnotation()
+                .typeProjectionModifiers()
+                .typeProjectionModifier()
+                .map { it.varianceModifier() }
         var isIN = false
         var isOUT = false
         for (varianceAnnotation in varianceAnnotations) {

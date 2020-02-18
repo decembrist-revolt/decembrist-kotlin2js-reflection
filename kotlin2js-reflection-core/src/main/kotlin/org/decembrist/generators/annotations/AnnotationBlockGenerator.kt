@@ -31,7 +31,7 @@ object AnnotationBlockGenerator: IGenerator<IAnnotated> {
                         .add("%T::class.jsReflect.createInstance(", annotationType)
                         .add(attributesBlock)
                         .add(")")
-                if (annotationType.packageName() == "") {
+                if (annotationType.packageName == "") {
                     imports.add(annotationType.canonicalName)
                 }
                 needComma = true

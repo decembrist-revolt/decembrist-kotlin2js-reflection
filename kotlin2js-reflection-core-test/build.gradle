@@ -1,0 +1,16 @@
+ext {
+    mavenName = 'kotlin2js-reflection-core-test'
+    mavenDescription = 'Tests for core library for kotlin2js reflection'
+}
+
+apply from: "${gradles}/jvm-module.gradle"
+apply from: "${gradles}/upload-archives.gradle"
+apply from: "${gradles}/additional-archives.gradle"
+
+dependencies {
+    implementation project(":kotlin2js-reflection-core")
+    testImplementation "io.mockk:mockk:$mockk_version"
+    testImplementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-script-util:$kotlin_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version"
+}

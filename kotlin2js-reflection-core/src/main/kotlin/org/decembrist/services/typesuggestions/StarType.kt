@@ -5,6 +5,6 @@ import com.squareup.kotlinpoet.WildcardTypeName
 
 class StarType : TypeSuggestion.Type("*") {
 
-    override fun toTypeName(): TypeName = WildcardTypeName.subtypeOf(Any::class)
+    override fun toTypeName(): TypeName = WildcardTypeName.consumerOf(Any::class)
 
 }

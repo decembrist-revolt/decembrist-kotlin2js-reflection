@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.WildcardTypeName
 import org.decembrist.Message.concatenateClassName
 import org.decembrist.services.typesuggestions.exceptions.UnknownTypeConversionException
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 sealed class TypeSuggestion(val type: String,
                             val nullable: Boolean = false) {
@@ -63,9 +64,9 @@ sealed class TypeSuggestion(val type: String,
             val className = toClassName()
             return (if (`in` or out) {
                 if (`in`) {
-                    WildcardTypeName.supertypeOf(className)
+                    WildcardTypeName.consumerOf(className)
                 } else {
-                    WildcardTypeName.subtypeOf(className)
+                    WildcardTypeName.producerOf(className)
                 }
             } else className).asNullable(nullable)
         }
@@ -83,7 +84,7 @@ sealed class TypeSuggestion(val type: String,
             val projectionTypes = projections
                     .map(TypeSuggestion::toTypeName)
                     .toTypedArray()
-            return ParameterizedTypeName.get(className, *projectionTypes).asNullable(nullable)
+            return className.parameterizedBy(*projectionTypes).asNullable(nullable)
         }
 
         override fun toString(): String {
@@ -102,7 +103,7 @@ sealed class TypeSuggestion(val type: String,
             projections
     )
 
-    fun TypeName.asNullable(nullable: Boolean = false) = if (nullable) {
+    fun TypeName.asNullable(nullable: Boolean = false): TypeName = if (nullable) {
         this.asNullable()
     } else this
 

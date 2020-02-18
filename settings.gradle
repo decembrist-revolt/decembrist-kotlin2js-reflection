@@ -1,12 +1,7 @@
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "kotlin2js") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-        }
-    }
-}
 rootProject.name = 'decembrist-kotlin2js-reflection'
-include 'kotlin2js-reflection-gplugin'
 
+include 'kotlin2js-reflection-gplugin'
+include 'kotlin2js-reflection-api'
+include 'kotlin2js-reflection-core'
+include 'kotlin2js-reflection-core-test'
+include 'kotlin2js-reflection-gplugin'

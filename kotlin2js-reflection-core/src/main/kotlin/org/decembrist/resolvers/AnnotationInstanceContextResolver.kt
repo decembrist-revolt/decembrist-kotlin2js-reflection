@@ -1,9 +1,9 @@
 package org.decembrist.resolvers
 
-import org.decembrist.parser.KotlinParser
-import org.decembrist.parser.KotlinParser.AnnotationContext
 import org.decembrist.domain.Import
 import org.decembrist.domain.headers.annotations.AnnotationInstance
+import org.decembrist.parser.KotlinParser
+import org.decembrist.parser.KotlinParser.AnnotationContext
 import org.decembrist.services.AnnotationService.retrieveAttribute
 import org.decembrist.services.ImportService.findConnectedImport
 import org.decembrist.services.TypeService.getTypeSuggestion
@@ -12,7 +12,7 @@ class AnnotationInstanceContextResolver(private val imports: Collection<Import>)
     : IContextResolver<AnnotationContext, AnnotationInstance> {
 
     override fun resolve(ctx: AnnotationContext): AnnotationInstance {
-        val annotationName = ctx.LabelReference().text.removePrefix("@")
+        val annotationName = ctx.text.removePrefix("@")
         val import = findConnectedImport(imports, annotationName)
         val type = if (import != null && annotationName == import) {
             getTypeSuggestion(annotationName, "")
@@ -24,7 +24,7 @@ class AnnotationInstanceContextResolver(private val imports: Collection<Import>)
         }
     }
 
-    private fun retrieveAttributes(ctx: AnnotationContext) = ctx.valueArguments()
+    private fun retrieveAttributes(ctx: AnnotationContext) = ctx.singleAnnotation().unescapedAnnotation().constructorInvocation().valueArguments()
             ?.valueArgument()
             ?.map { retrieveAttribute(it) } ?: emptyList()
 

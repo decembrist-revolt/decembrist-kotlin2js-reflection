@@ -9,6 +9,7 @@ import org.decembrist.services.logging.Logger
 import org.decembrist.services.logging.LoggerService
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import java.io.File
 import java.util.Collections.singletonList
 

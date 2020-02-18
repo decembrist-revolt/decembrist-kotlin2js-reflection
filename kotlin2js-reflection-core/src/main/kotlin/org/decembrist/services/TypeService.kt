@@ -1,13 +1,13 @@
 package org.decembrist.services
 
-import org.decembrist.parser.KotlinParser.*
-import org.antlr.v4.runtime.RuleContext
 import org.decembrist.domain.Import
+import org.decembrist.parser.KotlinParser.*
 import org.decembrist.services.ImportService.retrievePackageName
-import org.decembrist.services.typesuggestions.TypeSuggestion.*
 import org.decembrist.services.typecontexts.ModifiedProjection
 import org.decembrist.services.typecontexts.VarargsType
 import org.decembrist.services.typesuggestions.*
+import org.decembrist.services.typesuggestions.TypeSuggestion.Type
+import org.decembrist.services.typesuggestions.TypeSuggestion.Unknown
 import java.util.Collections.singletonList
 import org.decembrist.services.typecontexts.StarType as ContextStarType
 
@@ -95,7 +95,7 @@ object TypeService {
             else -> {
                 val nullable = paramCxt
                         .nullableType()
-                        ?.QUEST()
+                        ?.quest()
                         ?.isNotEmpty() == true
 
                 when (paramCxt) {
@@ -128,7 +128,7 @@ object TypeService {
     private fun retrieveType(projection: TypeProjectionContext,
                              typeContext: SimpleUserTypeContext) = when {
         projection.MULT() != null -> ContextStarType(typeContext)
-        projection.typeProjectionModifierList()?.isEmpty?.not() == true -> ModifiedProjection(
+        projection.typeProjectionModifiers()?.isEmpty?.not() == true -> ModifiedProjection(
                 projection,
                 typeContext
         )

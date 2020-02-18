@@ -1,0 +1,8 @@
+ext {
+    mavenName = 'kotlin2js-reflection-api'
+    mavenDescription = 'API for kotlin2js reflection processing'
+}
+
+apply from: "${gradles}/js-module.gradle"
+apply from: "${gradles}/upload-archives.gradle"
+apply from: "${gradles}/additional-archives.gradle"

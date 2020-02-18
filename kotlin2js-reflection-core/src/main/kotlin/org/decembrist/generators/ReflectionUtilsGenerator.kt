@@ -20,9 +20,9 @@ class ReflectionUtilsGenerator {
         val fileName = "Reflection$reflectionUUID"
         val mainReflectionVal = generateReflectionVal(fileContent, reflectionUUID)
         val fileSpecBuilder = FileSpec.builder(packageName, fileName)
-                .addStaticImport(JS_REFLECT_CLASSPATH, "jsReflect")
-                .addStaticImport(JS_REFLECT_CLASSPATH, "putAndCheck")
-                .addStaticImport(JS_REFLECT_CLASSPATH, "getIdentifier")
+                .addImport(JS_REFLECT_CLASSPATH, "jsReflect")
+                .addImport(JS_REFLECT_CLASSPATH, "putAndCheck")
+                .addImport(JS_REFLECT_CLASSPATH, "getIdentifier")
                 .addProperty(mainReflectionVal)
         addAliasedImports(fileContent, fileSpecBuilder)
         return fileSpecBuilder.build()

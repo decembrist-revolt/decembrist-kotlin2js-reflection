@@ -1,13 +1,12 @@
 package org.decembrist.resolvers.functions
 
-import org.decembrist.parser.KotlinParser.FunctionDeclarationContext
 import org.decembrist.domain.Import
 import org.decembrist.domain.content.functions.HiderOrderFunc
+import org.decembrist.parser.KotlinParser.FunctionDeclarationContext
 import org.decembrist.services.RuleContextService.getFunctionModifiers
 import org.decembrist.services.RuleContextService.getVisibility
 import org.decembrist.services.RuleContextService.retrieveFunctionParameters
 import org.decembrist.services.RuleContextService.retrieveFunctionReturnType
-import kotlin.reflect.KVisibility
 
 class HiderOrderFunctionContextResolver(
         funcName: String,
@@ -18,7 +17,7 @@ class HiderOrderFunctionContextResolver(
         val functionParameters = retrieveFunctionParameters(ctx, imports)
                 .toMutableList()
         val returnType = retrieveFunctionReturnType(ctx, imports)
-        val visibility = getVisibility(ctx.modifierList())
+        val visibility = getVisibility(ctx.modifiers())
         return HiderOrderFunc(
                 funcName,
                 functionModifiers,

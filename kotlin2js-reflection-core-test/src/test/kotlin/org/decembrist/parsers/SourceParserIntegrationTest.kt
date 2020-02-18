@@ -1,6 +1,7 @@
 package org.decembrist.parsers
 
 import org.decembrist.common.TestCommon
+import org.decembrist.common.TestCommon.Companion.OkFolder
 import org.decembrist.domain.Attribute
 import org.decembrist.services.logging.Logger
 import org.decembrist.services.logging.LoggerService
