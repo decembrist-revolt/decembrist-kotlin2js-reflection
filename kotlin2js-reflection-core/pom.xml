@@ -48,7 +48,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.3.0</kotlin.version>
+        <kotlin.version>1.6.0</kotlin.version>
         <antlr.version>4.7.1</antlr.version>
         <kotlinpoet.version>0.7.0</kotlinpoet.version>
         <dokka.version>0.9.17</dokka.version>
